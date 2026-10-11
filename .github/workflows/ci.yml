@@ -75,6 +75,7 @@ jobs:
         env:
           CGO_ENABLED: "1"
         run: |
+          gofmt -l internal cmd test
           test -z "$(gofmt -l internal cmd test)"
           go vet ./...
           go test -race ./...
