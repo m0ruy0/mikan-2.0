@@ -1,9 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import { Code } from '@astrojs/starlight/components';
-import mandarin from '../assets/mandarin.webp';
 import Goals from './Goals.astro';
-import goals from '../../../.github/goals.json';
 import { installCommand, links, protocolMatrix, strings, type Lang, type Screen } from '../landing';
 
 interface Props {
@@ -14,25 +12,24 @@ const { lang } = Astro.props;
 const t = strings[lang];
 const docs = (path: string) => `${import.meta.env.BASE_URL}${lang === 'en' ? 'en/' : ''}${path}`;
 
-// The README screenshots, one set per language.
+// Screenshots from the inherited Mikan interface, one set per language.
 const shots = import.meta.glob<{ default: ImageMetadata }>('../../../.github/assets/screens/*/*.webp', {
 	eager: true,
 });
 const shot = (name: string) => shots[`../../../.github/assets/screens/${lang}/${name}.webp`].default;
 const screens = Object.keys(t.screens.items) as Screen[];
-// The goals still collecting money: a badge in the hero and a strip right under it.
-const collecting = goals.items.filter((g) => g.status === 'open').length;
+// The roadmap is a permanent part of the free-core project overview.
+const roadmapVisible = true;
 ---
 
 <div class="landing not-content">
 	<section class="hero" aria-labelledby="hero-title">
 		<div class="hero-copy">
 			{
-				collecting > 0 ? (
-					<a class="funding-badge" href="#funding-title">
+				roadmapVisible ? (
+					<a class="roadmap-badge" href="#roadmap-title">
 						<span class="dot" aria-hidden="true" />
-						{t.funding.badge}
-						<b>{collecting}</b>
+						{t.roadmap.badge}
 						<svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14">
 							<path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
 						</svg>
@@ -55,20 +52,46 @@ const collecting = goals.items.filter((g) => g.status === 'open').length;
 			</div>
 		</div>
 		<div class="hero-art">
-			<Image src={mandarin} alt={t.hero.art} widths={[210, 420]} sizes="(min-width: 50rem) 300px, 168px" loading="eager" fetchpriority="high" class="fruit" />
+			<svg class="fruit" viewBox="0 0 280 280" role="img" aria-label={t.hero.art} xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="mikan-glow"><stop stop-color="#ff9148" stop-opacity=".36"/><stop offset="1" stop-color="#ff9148" stop-opacity="0"/></radialGradient>
+    <linearGradient id="mikan-skin" x1=".18" y1="0" x2=".82" y2="1"><stop stop-color="#ffc166"/><stop offset=".45" stop-color="#ff8a32"/><stop offset="1" stop-color="#d94b14"/></linearGradient>
+    <linearGradient id="mikan-leaf" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a5e67d"/><stop offset="1" stop-color="#26734a"/></linearGradient>
+    <filter id="mikan-shadow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="10"/></filter>
+  </defs>
+  <circle cx="140" cy="140" r="135" fill="url(#mikan-glow)"/>
+  <g fill="none" stroke="#ff8a32" stroke-width="1.5" opacity=".4">
+    <ellipse cx="140" cy="144" rx="112" ry="57" transform="rotate(-24 140 144)"/>
+    <ellipse cx="140" cy="144" rx="120" ry="79" transform="rotate(31 140 144)" opacity=".6"/>
+    <circle cx="35" cy="157" r="4" fill="#62c6df"/><circle cx="229" cy="82" r="5" fill="#ff8a32"/><circle cx="222" cy="221" r="4" fill="#72dca0"/>
+  </g>
+  <ellipse cx="140" cy="230" rx="66" ry="10" fill="#000" opacity=".23" filter="url(#mikan-shadow)"/>
+  <path d="M130 63 C113 38 128 21 151 18 C159 39 150 56 130 63Z" fill="url(#mikan-leaf)"/>
+  <path d="M139 58 C158 32 190 37 200 16 C204 47 174 68 139 58Z" fill="url(#mikan-leaf)"/>
+  <path d="M137 62 C136 48 144 35 155 29" fill="none" stroke="#75441e" stroke-width="6" stroke-linecap="round"/>
+  <path d="M55 122 C62 83 103 67 130 77 C161 65 204 80 221 117 C246 160 215 209 175 222 C151 239 112 226 95 213 C58 197 39 159 55 122Z" fill="url(#mikan-skin)"/>
+  <path d="M76 116 C93 91 113 88 127 92 M82 190 C102 211 126 218 146 211 M170 90 C197 104 207 130 201 151" fill="none" stroke="#ffd591" stroke-width="6" stroke-linecap="round" opacity=".65"/>
+  <ellipse cx="93" cy="153" rx="17" ry="11" fill="#ffb3a0" opacity=".5"/><ellipse cx="184" cy="153" rx="17" ry="11" fill="#ffb3a0" opacity=".5"/>
+  <circle cx="108" cy="142" r="5.5" fill="#6f2b10"/><circle cx="168" cy="142" r="5.5" fill="#6f2b10"/>
+  <path d="M119 166 Q139 185 159 166" fill="none" stroke="#6f2b10" stroke-width="5" stroke-linecap="round"/>
+  <g transform="translate(164 188)">
+    <rect x="0" y="0" width="43" height="24" rx="8" fill="#fff2d9" opacity=".92"/>
+    <text x="21.5" y="16.5" text-anchor="middle" fill="#b94712" font-family="Arial,sans-serif" font-size="12" font-weight="700">2.0</text>
+  </g>
+</svg>
 			<span class="shade" aria-hidden="true"></span>
 		</div>
 	</section>
 
 	{
-		collecting > 0 ? (
-			<section class="block funding" aria-labelledby="funding-title">
-				<header class="block-head funding-head">
+		roadmapVisible ? (
+			<section class="block roadmap" aria-labelledby="roadmap-title">
+				<header class="block-head roadmap-head">
 					<div>
-						<h2 id="funding-title">{t.funding.title}</h2>
-						<p>{t.funding.lead}</p>
+						<h2 id="roadmap-title">{t.roadmap.title}</h2>
+						<p>{t.roadmap.lead}</p>
 					</div>
-					<a class="more" href={docs('support/')}>{t.funding.all}</a>
+					<a class="more" href={docs('support/')}>{t.roadmap.all}</a>
 				</header>
 				<Goals lang={lang} compact />
 			</section>
@@ -97,7 +120,7 @@ const collecting = goals.items.filter((g) => g.status === 'open').length;
 						<div class="frame">
 							<Image
 								src={shot(s)}
-								alt={`mikan · ${t.screens.items[s][0]}`}
+								alt={`Mikan 2.0 · ${t.screens.items[s][0]}`}
 								format="webp"
 								widths={[720, 1080, 1600, 2160]}
 								sizes="(min-width: 72rem) 1056px, calc(100vw - 2rem)"
@@ -191,8 +214,8 @@ const collecting = goals.items.filter((g) => g.status === 'open').length;
 			<h3 id="sponsor-title">{t.cta.sponsorTitle}</h3>
 			<p>{t.cta.sponsorText}</p>
 			<div class="actions">
-				<a class="btn btn-accent" href={links.sponsor}>{t.cta.sponsor}</a>
-				<a class="btn btn-ghost" href={docs('support/')}>{t.cta.goals}</a>
+				<a class="btn btn-accent" href={docs('support/')}>{t.cta.sponsor}</a>
+				<a class="btn btn-ghost" href={links.github}>{t.cta.github}</a>
 			</div>
 		</aside>
 	</section>
@@ -404,9 +427,9 @@ const collecting = goals.items.filter((g) => g.status === 'open').length;
 		text-decoration-color: currentColor;
 	}
 
-	/* ---------- funding ---------- */
+	/* ---------- roadmap ---------- */
 
-	.funding-badge {
+	.roadmap-badge {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.5rem;
@@ -422,16 +445,16 @@ const collecting = goals.items.filter((g) => g.status === 'open').length;
 		transition: border-color 0.2s var(--mk-ease);
 	}
 
-	.funding-badge:hover {
+	.roadmap-badge:hover {
 		border-color: var(--mk-accent);
 	}
 
-	.funding-badge:focus-visible {
+	.roadmap-badge:focus-visible {
 		outline: 2px solid var(--mk-accent);
 		outline-offset: 2px;
 	}
 
-	.funding-badge b {
+	.roadmap-badge b {
 		display: inline-grid;
 		place-items: center;
 		min-width: 1.25rem;
@@ -443,14 +466,14 @@ const collecting = goals.items.filter((g) => g.status === 'open').length;
 		font-size: 0.75rem;
 	}
 
-	.funding-badge .dot {
+	.roadmap-badge .dot {
 		width: 0.5rem;
 		height: 0.5rem;
 		border-radius: 50%;
 		background: var(--mk-orange);
 	}
 
-	.funding-head {
+	.roadmap-head {
 		max-width: none;
 		display: flex;
 		flex-wrap: wrap;
@@ -459,16 +482,16 @@ const collecting = goals.items.filter((g) => g.status === 'open').length;
 		gap: 0.5rem 2rem;
 	}
 
-	.funding-head > div {
+	.roadmap-head > div {
 		max-width: 40rem;
 	}
 
-	.funding-head .more {
+	.roadmap-head .more {
 		margin-top: 0;
 	}
 
 	/* The strip comes right after the hero: closer than the other blocks. */
-	.funding {
+	.roadmap {
 		margin-top: calc(var(--gap) * 0.6);
 	}
 
