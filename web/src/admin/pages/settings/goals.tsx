@@ -61,7 +61,7 @@ export function GoalsCard() {
                   {feature.description}
                 </p>
               </div>
-              <span className="shrink-0 rounded-full border border-[var(--line)] px-2 py-1 text-[11px] text-[var(--ink-500)]">
+              <span className="shrink-0 rounded-full border border-[var(--hairline)] px-2 py-1 text-[11px] text-[var(--ink-500)]">
                 {t("goals.planned")}
               </span>
             </div>
