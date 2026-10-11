@@ -11,7 +11,7 @@ use ed25519_dalek::{Signature, VerifyingKey};
 use serde::Deserialize;
 
 /// The public half of the release signing key, the same as internal/release.PublicKey.
-pub const PUBLIC_KEY: &str = "jrA0HDI4pTT56c3VkldubmPdDgNIYMXGf14qyeZFulY=";
+pub const PUBLIC_KEY: &str = "98Ry4nYspdB8MQYSaQjwgAKNHd57Y6zNoYdJv3SlAEM=";
 
 pub const REPO: &str = "m0ruy0/mikan-2.0";
 
