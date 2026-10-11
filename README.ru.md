@@ -31,7 +31,7 @@ curl -fsSL https://github.com/m0ruy0/mikan-2.0/releases/latest/download/install.
 
 Установщик будет проверять подпись манифеста и SHA-256 загруженного бинарника, затем запускать мастер настройки. Не используйте для Mikan 2.0 установщик или Docker-образ оригинального Mikan.
 
-Подробности: [инструкция по установке](site/src/content/docs/start/install.mdx).
+Подробности: [инструкция по установке](https://m0ruy0.github.io/mikan-2.0/start/install/).
 
 ## Что развиваем
 
