@@ -67,11 +67,11 @@ If the external IP or domain changes, update DNS/settings and renew the certific
 
 ## 5. Switch traffic and keep a rollback path
 
-1. During the maintenance window, stop the old panel through the `mikan` menu so both copies do not accept changes at the same time.
+1. During the maintenance window, stop the old project: `cd /opt/mikan-2.0 && sudo docker compose stop`. This does not delete data.
 2. Point DNS at the new IP and test the panel, subscriptions and API from outside the server.
 3. Keep the old server and its backup offline until the verification period is complete.
 
-**Rollback:** if the new server has a problem after the switch, stop its panel, point DNS back to the old IP and start the old panel through its `mikan` menu. Never leave both panels running at once. Changes made by subscribers after the new panel took over are not copied back automatically; move the latest database before switching back if you need to preserve them.
+**Rollback:** if the new server has a problem after the switch, run `cd /opt/mikan-2.0 && sudo docker compose stop` on the new server, point DNS back to the old IP and then run `cd /opt/mikan-2.0 && sudo docker compose up -d` on the old server. Never leave both panels running at once. Changes made by subscribers after the new panel took over are not copied back automatically; move the latest database before switching back if you need to preserve them.
 
 ## Important limitations
 
