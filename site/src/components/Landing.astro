@@ -1,7 +1,6 @@
 ---
 import { Image } from 'astro:assets';
 import { Code } from '@astrojs/starlight/components';
-import Goals from './Goals.astro';
 import { installCommand, links, protocolMatrix, strings, type Lang, type Screen } from '../landing';
 
 interface Props {
@@ -18,24 +17,11 @@ const shots = import.meta.glob<{ default: ImageMetadata }>('../../../.github/ass
 });
 const shot = (name: string) => shots[`../../../.github/assets/screens/${lang}/${name}.webp`].default;
 const screens = Object.keys(t.screens.items) as Screen[];
-// The roadmap is a permanent part of the free-core project overview.
-const roadmapVisible = true;
 ---
 
 <div class="landing not-content">
 	<section class="hero" aria-labelledby="hero-title">
 		<div class="hero-copy">
-			{
-				roadmapVisible ? (
-					<a class="roadmap-badge" href="#roadmap-title">
-						<span class="dot" aria-hidden="true" />
-						{t.roadmap.badge}
-						<svg aria-hidden="true" viewBox="0 0 16 16" width="14" height="14">
-							<path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
-						</svg>
-					</a>
-				) : null
-			}
 			<h1 id="hero-title">{t.hero.title}</h1>
 			<p class="lead">{t.hero.lead}</p>
 			<div class="install">
@@ -131,21 +117,6 @@ const roadmapVisible = true;
 			<span class="shade" aria-hidden="true"></span>
 		</div>
 	</section>
-
-	{
-		roadmapVisible ? (
-			<section class="block roadmap" aria-labelledby="roadmap-title">
-				<header class="block-head roadmap-head">
-					<div>
-						<h2 id="roadmap-title">{t.roadmap.title}</h2>
-						<p>{t.roadmap.lead}</p>
-					</div>
-					<a class="more" href={docs('support/')}>{t.roadmap.all}</a>
-				</header>
-				<Goals lang={lang} compact />
-			</section>
-		) : null
-	}
 
 	<section class="block" aria-labelledby="screens-title">
 		<header class="block-head">
