@@ -107,6 +107,27 @@ const roadmapVisible = true;
     <path d="M12 20h28 M26 9v22 M18 12 12 20l6 8 M34 12l6 8-6 8" fill="none" stroke="#73dda0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
 </svg>
+			<div class="hero-dashboard">
+				<div class="hero-dashboard-window">
+					<div class="hero-window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+					<span class="hero-window-label">{t.hero.previewLabel}</span>
+					<span class="hero-window-badge"><i aria-hidden="true"></i>{t.hero.previewStatus}</span>
+				</div>
+				<Image
+					src={shot('dashboard')}
+					alt={t.hero.dashboardAlt}
+					format="webp"
+					widths={[480, 720, 1080, 1440]}
+					sizes="(min-width: 60rem) 46vw, 100vw"
+					loading="eager"
+					class="hero-dashboard-image"
+				/>
+			</div>
+			<div class="hero-health">
+				<span class="hero-health-icon" aria-hidden="true">↗</span>
+				<span class="hero-health-copy"><strong>{t.hero.healthTitle}</strong><small>{t.hero.healthSubtitle}</small></span>
+				<span class="hero-health-value">OK</span>
+			</div>
 			<span class="shade" aria-hidden="true"></span>
 		</div>
 	</section>
@@ -287,18 +308,161 @@ const roadmapVisible = true;
 	.hero-art {
 		position: relative;
 		order: -1;
-		justify-self: start;
-		width: 168px;
+		justify-self: center;
+		width: 100%;
+		max-width: 580px;
+		min-height: 265px;
+		isolation: isolate;
 	}
 
 	.fruit {
 		display: block;
-		width: 100%;
+		position: absolute;
+		top: -0.75rem;
+		right: -0.25rem;
+		width: min(64%, 380px);
 		height: auto;
-		position: relative;
 		z-index: 1;
+		pointer-events: none;
 		animation: float 7s ease-in-out infinite;
 		filter: drop-shadow(0 18px 24px rgba(160, 70, 10, 0.18));
+	}
+
+	.hero-dashboard {
+		position: relative;
+		z-index: 2;
+		width: calc(100% - 0.75rem);
+		margin-top: 4rem;
+		overflow: hidden;
+		border: 1px solid var(--mk-hairline-strong);
+		border-radius: 18px;
+		background: var(--mk-surface);
+		box-shadow: 0 36px 90px -35px rgba(0, 0, 0, 0.82), 0 0 44px color-mix(in srgb, var(--mk-accent) 12%, transparent);
+		transform: perspective(1200px) rotateY(-2deg) rotateX(1deg);
+		transform-origin: center bottom;
+		transition: transform 0.45s var(--mk-ease), box-shadow 0.45s var(--mk-ease);
+	}
+
+	.hero-dashboard:hover {
+		transform: perspective(1200px) rotateY(0) rotateX(0) translateY(-3px);
+		box-shadow: 0 42px 95px -32px rgba(0, 0, 0, 0.86), 0 0 55px color-mix(in srgb, var(--mk-accent) 18%, transparent);
+	}
+
+	.hero-dashboard-window {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		min-height: 2.5rem;
+		padding: 0.625rem 0.875rem;
+		border-bottom: 1px solid var(--mk-hairline);
+		background: color-mix(in srgb, var(--mk-surface) 94%, var(--mk-accent));
+	}
+
+	.hero-window-dots {
+		display: inline-flex;
+		gap: 0.3125rem;
+		flex: none;
+	}
+
+	.hero-window-dots span {
+		width: 0.5rem;
+		height: 0.5rem;
+		border-radius: 50%;
+		background: #ff6257;
+	}
+	.hero-window-dots span:nth-child(2) { background: #ffc14f; }
+	.hero-window-dots span:nth-child(3) { background: #43c875; }
+
+	.hero-window-label {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		color: var(--mk-muted);
+		font-size: 0.75rem;
+		font-weight: 600;
+	}
+
+	.hero-window-badge {
+		margin-inline-start: auto;
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		flex: none;
+		padding: 0.25rem 0.5rem;
+		border-radius: 999px;
+		background: var(--mk-leaf-soft);
+		color: var(--mk-leaf);
+		font-size: 0.6875rem;
+		font-weight: 700;
+		letter-spacing: 0.03em;
+	}
+
+	.hero-window-badge i,
+	.hero-health-icon {
+		width: 0.4375rem;
+		height: 0.4375rem;
+		border-radius: 50%;
+		background: var(--mk-leaf);
+		box-shadow: 0 0 12px color-mix(in srgb, var(--mk-leaf) 72%, transparent);
+	}
+
+	.hero-dashboard-image {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
+	.hero-health {
+		position: absolute;
+		z-index: 4;
+		right: -0.25rem;
+		bottom: 0.125rem;
+		display: flex;
+		align-items: center;
+		gap: 0.65rem;
+		padding: 0.75rem 0.9rem;
+		border: 1px solid var(--mk-hairline-strong);
+		border-radius: 14px;
+		background: color-mix(in srgb, var(--mk-surface) 92%, transparent);
+		box-shadow: var(--mk-shadow-lg);
+		backdrop-filter: blur(16px);
+	}
+
+	.hero-health-icon {
+		display: grid;
+		place-items: center;
+		width: 2rem;
+		height: 2rem;
+		color: #102319;
+		font-size: 1.1rem;
+		font-weight: 800;
+		background: var(--mk-leaf);
+	}
+
+	.hero-health-copy {
+		display: grid;
+		gap: 0.1rem;
+	}
+
+	.hero-health-copy strong {
+		color: var(--mk-ink);
+		font-size: 0.75rem;
+		line-height: 1.2;
+	}
+
+	.hero-health-copy small {
+		color: var(--mk-muted);
+		font-size: 0.6875rem;
+		line-height: 1.25;
+	}
+
+	.hero-health-value {
+		margin-inline-start: 0.25rem;
+		color: var(--mk-leaf);
+		font-family: var(--sl-font-mono);
+		font-size: 0.75rem;
+		font-weight: 800;
 	}
 
 	.shade {
@@ -419,9 +583,18 @@ const roadmapVisible = true;
 		}
 		.hero-art {
 			order: 0;
-			width: 300px;
+			width: min(100%, 580px);
+			min-height: 410px;
 			justify-self: end;
-			margin-inline-end: 1rem;
+			margin-inline-end: 0;
+		}
+		.hero-dashboard {
+			margin-top: 5.25rem;
+			width: calc(100% - 1.25rem);
+		}
+		.hero-health {
+			right: -0.5rem;
+			bottom: -0.25rem;
 		}
 	}
 
@@ -840,5 +1013,105 @@ const roadmapVisible = true;
 			grid-template-columns: minmax(0, 1fr) 20rem;
 			gap: 4rem;
 		}
+	}
+
+
+	/* ---------- Mikan 2.0 product landing polish ---------- */
+	.landing {
+		position: relative;
+		isolation: isolate;
+	}
+
+	.landing::before {
+		content: '';
+		position: absolute;
+		z-index: -1;
+		pointer-events: none;
+		top: -5rem;
+		left: -8rem;
+		right: -8rem;
+		height: 40rem;
+		background:
+			radial-gradient(ellipse at 78% 19%, color-mix(in srgb, var(--mk-accent) 14%, transparent), transparent 42%),
+			radial-gradient(ellipse at 12% 34%, color-mix(in srgb, var(--mk-lagoon) 9%, transparent), transparent 38%);
+		mask-image: linear-gradient(to bottom, black, transparent 92%);
+	}
+
+	.roadmap-badge { box-shadow: 0 0 30px color-mix(in srgb, var(--mk-accent) 9%, transparent); }
+
+	.features {
+		gap: 0.9rem;
+		column-gap: 0.9rem;
+		counter-reset: feature;
+	}
+
+	.features li {
+		position: relative;
+		min-height: 11rem;
+		padding: 3.15rem 1.25rem 1.35rem;
+		border: 1px solid var(--mk-hairline);
+		border-radius: var(--mk-radius-lg);
+		background: linear-gradient(150deg, color-mix(in srgb, var(--mk-surface) 96%, var(--mk-accent)), var(--mk-surface) 72%);
+		box-shadow: 0 16px 38px -32px rgba(0, 0, 0, 0.72);
+		transition: transform 0.22s var(--mk-ease), border-color 0.22s var(--mk-ease), box-shadow 0.22s var(--mk-ease);
+		counter-increment: feature;
+	}
+
+	.features li::before {
+		content: '0' counter(feature);
+		position: absolute;
+		top: 1.05rem;
+		left: 1.25rem;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 2.2rem;
+		height: 1.8rem;
+		padding-inline: 0.4rem;
+		border: 1px solid color-mix(in srgb, var(--mk-accent) 35%, transparent);
+		border-radius: 8px;
+		background: var(--mk-accent-soft);
+		color: var(--mk-accent-text);
+		font: 700 0.7rem/1 var(--sl-font-mono);
+	}
+
+	.features li:hover {
+		transform: translateY(-3px);
+		border-color: color-mix(in srgb, var(--mk-accent) 42%, var(--mk-hairline));
+		box-shadow: 0 24px 42px -32px color-mix(in srgb, var(--mk-accent) 32%, transparent);
+	}
+
+	.matrix-wrap { box-shadow: 0 18px 46px -38px rgba(0,0,0,.8); }
+	.frame { transition: border-color .2s var(--mk-ease), box-shadow .2s var(--mk-ease); }
+	.frame:hover { border-color: color-mix(in srgb, var(--mk-accent) 38%, var(--mk-hairline)); }
+	.cta {
+		padding: clamp(1.25rem, 3vw, 2.5rem);
+		border: 1px solid var(--mk-hairline);
+		border-radius: calc(var(--mk-radius-lg) + 4px);
+		background: linear-gradient(135deg, color-mix(in srgb, var(--mk-surface) 90%, var(--mk-accent)), var(--mk-surface) 64%);
+		box-shadow: var(--mk-shadow-lg);
+	}
+	.sponsor {
+		padding: 1.25rem;
+		border: 1px solid var(--mk-hairline);
+		border-radius: var(--mk-radius);
+		background: color-mix(in srgb, var(--mk-surface-2) 72%, transparent);
+	}
+
+	@media (max-width: 49.99rem) {
+		.hero-art { min-height: 250px; }
+		.hero-dashboard { margin-top: 3.15rem; width: calc(100% - 0.25rem); }
+		.hero-window-label { font-size: 0.6875rem; }
+		.hero-health { right: 0; bottom: -0.4rem; padding: 0.55rem 0.7rem; gap: 0.45rem; }
+		.hero-health-icon { width: 1.65rem; height: 1.65rem; }
+		.hero-health-copy strong { font-size: 0.6875rem; }
+		.hero-health-copy small { font-size: 0.625rem; }
+		.hero-health-value { font-size: 0.6875rem; }
+		.features li { min-height: auto; }
+		.cta { padding: 1rem; }
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.fruit, .shade, .hero-dashboard, .features li { animation: none; transition: none; }
 	}
 </style>
