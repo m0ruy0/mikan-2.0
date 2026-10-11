@@ -127,7 +127,7 @@ export const strings = {
 		},
 		header: {
 			label: 'Проект',
-			githubLabel: 'GitHub: исходный код mikan',
+			githubLabel: 'GitHub: исходный код Mikan 2.0',
 			support: 'Дорожная карта',
 			supportLabel: 'Дорожная карта Mikan 2.0',
 			otherLanguage: 'English version',
@@ -246,17 +246,17 @@ export const strings = {
 		},
 		header: {
 			label: 'Project',
-			githubLabel: 'GitHub: the mikan source code',
+			githubLabel: 'GitHub: Mikan 2.0 source code',
 			support: 'Roadmap',
 			supportLabel: 'Mikan 2.0 roadmap',
 			otherLanguage: 'Русская версия',
 		},
 		footer: {
 			label: 'Project links',
-			license: 'mikan is free software under the GNU GPL v3. It embeds mihomo (GPL-3.0).',
+			license: 'Mikan 2.0 is a modified fork under GNU GPL v3; upstream attribution is preserved.',
 			releases: 'Releases',
-			issues: 'Report a problem',
-			sponsor: 'Sponsor',
+			issues: 'Repository',
+			sponsor: 'Roadmap',
 		},
 	},
 } as const;
