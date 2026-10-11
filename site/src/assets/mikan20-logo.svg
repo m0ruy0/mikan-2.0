@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="Mikan 2.0">
+  <defs>
+    <radialGradient id="a" cx="30%" cy="24%" r="78%"><stop stop-color="#ffc66f"/><stop offset=".52" stop-color="#ff8a32"/><stop offset="1" stop-color="#d94912"/></radialGradient>
+    <linearGradient id="l" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a9e77f"/><stop offset="1" stop-color="#26734a"/></linearGradient>
+  </defs>
+  <circle cx="48" cy="51" r="42" fill="#ff853d" opacity=".12"/>
+  <ellipse cx="48" cy="49" rx="34" ry="22" fill="none" stroke="#ff853d" stroke-width="1.5" opacity=".6" transform="rotate(-25 48 49)"/>
+  <ellipse cx="48" cy="49" rx="38" ry="26" fill="none" stroke="#ff853d" stroke-width="1.2" opacity=".35" transform="rotate(36 48 49)"/>
+  <path d="M44 21 C36 10 42 3 52 5 C55 13 51 19 44 21Z" fill="#694019"/>
+  <path d="M47 19 C55 7 70 9 75 1 C75 16 61 24 47 19Z" fill="url(#l)"/>
+  <path d="M25 38 C29 25 42 22 49 26 C60 22 73 30 75 41 C81 55 70 70 57 73 C47 80 35 73 30 69 C16 61 16 48 25 38Z" fill="url(#a)"/>
+  <path d="M33 37 C38 30 43 30 47 32 M34 61 C42 68 50 69 56 66 M60 31 C69 37 70 44 69 49" fill="none" stroke="#ffd591" stroke-width="3.5" stroke-linecap="round" opacity=".7"/>
+  <circle cx="39" cy="48" r="2.8" fill="#6f2b10"/><circle cx="59" cy="48" r="2.8" fill="#6f2b10"/>
+  <path d="M43 57 Q49 63 55 57" fill="none" stroke="#6f2b10" stroke-width="2.8" stroke-linecap="round"/>
+  <circle cx="17" cy="57" r="3" fill="#62c6df"/><circle cx="79" cy="35" r="3.5" fill="#ff853d"/><circle cx="70" cy="78" r="2.8" fill="#72dca0"/>
+</svg>
