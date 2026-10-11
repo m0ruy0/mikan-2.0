@@ -22,11 +22,11 @@ import (
 //
 // The rules are copied from the released code, not from the current one:
 //
-//	git show v0.4.5:installer/src/release.rs        (installer 0.4.5: Manifest, parse, semver)
-//	git show v0.5.0.0:installer/src/release.rs      (installer 0.5.0.0: the same, IMAGE_PREFIX)
-//	git show v0.4.5:internal/release/release.go     (panel 0.4.5, branch release/0.4: Parse)
-//	git show v0.5.0.0:internal/release/release.go   (panel 0.5.0.0: Parse, validImage)
-//	git show v0.5.0.0:installer/src/update.rs       (self_update: the installer for the arch)
+//	first Mikan 2.0 release: installer/src/release.rs        (installer 0.4.5: Manifest, parse, semver)
+//	first Mikan 2.0 release: installer/src/release.rs      (installer 0.5.0.0: the same, IMAGE_PREFIX)
+//	first Mikan 2.0 release: internal/release/release.go     (panel 0.4.5, branch release/0.4: Parse)
+//	first Mikan 2.0 release: internal/release/release.go   (panel 0.5.0.0: Parse, validImage)
+//	first Mikan 2.0 release: installer/src/update.rs       (self_update: the installer for the arch)
 //
 // Where they differ, the stricter one is the rule (serde wants the fields Go lets go
 // missing, Go wants an RFC 3339 date where serde takes any string). This contract is
@@ -52,7 +52,7 @@ const (
 	// serde_json's recursion limit, which unknown fields are parsed under too.
 	legacyMaxDepth = 100
 	// installer/src/release.rs IMAGE_PREFIX (0.5.0.0), the literal in valid_image (0.4.5).
-	legacyImagePrefix = "ghcr.io/miroshka000/"
+	legacyImagePrefix = "ghcr.io/m0ruy0/"
 )
 
 // legacyCheck says whether every client still in the field takes data with sig as the
