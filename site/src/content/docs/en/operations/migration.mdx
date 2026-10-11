@@ -1,0 +1,80 @@
+---
+title: Move the panel to another server
+description: A checked procedure for moving the database, keys, certificates and settings with a rollback plan.
+---
+
+This procedure moves the **panel**, not just its user list. The built-in `mikan backup` archive is the preferred starting point: it contains the database, installation settings, certificates, node data and payment-adapter settings.
+
+## 1. Prepare the old server
+
+1. Check the panel first: `sudo mikan status`.
+2. Back up your own site separately if it lives in `/opt/mikan-2.0/data/panel/www`; the site is not included in the archive.
+3. Create a backup:
+
+   ```bash
+   sudo mikan backup
+   sudo ls -lht /opt/mikan-2.0/backups/
+   ```
+
+4. Record the exact version shown by `sudo mikan status` and the archive filename. Do not publish the archive: it may contain secrets.
+
+## 2. Transfer the archive
+
+Copy the archive to the new server over SSH. Replace the filename and address:
+
+```bash
+scp /opt/mikan-2.0/backups/mikan-YYYYMMDD-HHMMSS.tar.gz root@NEW_SERVER:/root/
+```
+
+Make sure SSH verifies the server's host key. You can also compare SHA-256 checksums on both servers:
+
+```bash
+sha256sum /opt/mikan-2.0/backups/mikan-YYYYMMDD-HHMMSS.tar.gz
+```
+
+## 3. Prepare the new server
+
+1. Install the same Mikan 2.0 version as on the old server. Do not point your production domain at the new address until the transfer has been verified.
+2. Confirm that the new server supports the required TCP/UDP ports and has enough disk space for the archive, restored data and the temporary copy created during restore.
+3. Copy the archive into the backup directory:
+
+   ```bash
+   sudo mkdir -p /opt/mikan-2.0/backups
+   sudo install -m 0600 /root/mikan-YYYYMMDD-HHMMSS.tar.gz /opt/mikan-2.0/backups/
+   ```
+
+## 4. Restore and verify
+
+Run the restore on the **new** server:
+
+```bash
+sudo mikan restore /opt/mikan-2.0/backups/mikan-YYYYMMDD-HHMMSS.tar.gz
+sudo mikan status
+```
+
+The command checks the archive before restoring, stops the containers, preserves the destination's current state and rolls it back if a restore step fails. It keeps the new server's database credentials and installed version; users, plans, settings, keys and certificates are restored from the archive.
+
+Before changing DNS, verify that:
+
+- the panel starts and the API/database are reachable;
+- users, plans, limits and settings are present;
+- nodes appear under **Nodes** and their APIs can be reached from the new panel IP;
+- a test subscription and client connection work;
+- payment adapters and the Telegram bot are reachable;
+- the certificate and secret panel path are in place, and the custom site has been restored separately if applicable.
+
+If the external IP or domain changes, update DNS/settings and renew the certificate once the new address is reachable. For remote nodes, verify their allowed panel address: some configurations restrict API access by IP.
+
+## 5. Switch traffic and keep a rollback path
+
+1. During the maintenance window, stop the old panel through the `mikan` menu so both copies do not accept changes at the same time.
+2. Point DNS at the new IP and test the panel, subscriptions and API from outside the server.
+3. Keep the old server and its backup offline until the verification period is complete.
+
+**Rollback:** if the new server has a problem after the switch, stop its panel, point DNS back to the old IP and start the old panel through its `mikan` menu. Never leave both panels running at once. Changes made by subscribers after the new panel took over are not copied back automatically; move the latest database before switching back if you need to preserve them.
+
+## Important limitations
+
+- The archive excludes a custom site in `data/panel/www`; copy it separately.
+- Moving the panel does not transfer the hosting provider's firewall or allocation rules. Check those on the new host.
+- Never send the full archive or `.env` file to public chats. Restrict backup permissions to root.
