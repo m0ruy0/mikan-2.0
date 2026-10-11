@@ -245,8 +245,8 @@ jobs:
             dist/install.sh dist/mikan-x86_64 dist/mikan-aarch64 dist/manifest.json dist/manifest.json.sig
       # The release index (internal/release/index.go) lives on the "updates" pre-release,
       # which never becomes "latest". The current index is carried on only with a valid
-      # signature; when there is none yet, it starts from the releases before it. A
-      # pre-release goes in as beta and leaves "latest" alone.
+      # signature; when there is none yet, it starts a fresh Mikan 2.0 release chain
+      # without importing upstream Mikan versions. A pre-release goes in as beta and leaves "latest" alone.
       - name: index
         env:
           GH_TOKEN: ${{ github.token }}
