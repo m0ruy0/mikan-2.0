@@ -1,289 +1,163 @@
 ---
-// The goals the project collects money for, from the same file the panels get them from
-// (.github/goals.json, signed into the release index by the goals workflow).
-import goals from '../../../.github/goals.json';
-
 type Lang = 'ru' | 'en';
-type Goal = {
-	id: string;
-	title: Partial<Record<Lang, string>>;
-	about?: Partial<Record<Lang, string>>;
-	target: number;
-	raised: number;
-	currency: string;
-	status: 'open' | 'working' | 'done';
-	version?: string;
-	url?: string;
+
+type RoadmapItem = {
+  id: string;
+  title: Record<Lang, string>;
+  about: Record<Lang, string>;
 };
 
-// compact: the landing's strip, the open goals only and no more than three.
 const { lang = 'ru', compact = false } = Astro.props as { lang?: Lang; compact?: boolean };
-const other: Lang = lang === 'ru' ? 'en' : 'ru';
-const text = (m?: Partial<Record<Lang, string>>) => m?.[lang] || m?.[other] || '';
-const items = goals.items as Goal[];
-const active = items.filter((g) => g.status !== 'done').slice(0, compact ? 3 : undefined);
-const done = items.filter((g) => g.status === 'done');
 
-const t = {
-	ru: {
-		raised: 'собрано',
-		of: 'из',
-		status: { open: 'Идёт сбор', working: 'Собрано, в работе', done: 'Готово' },
-		give: 'Поддержать',
-		giveAny: 'Поддержать без цели',
-		doneIn: 'Вышло в',
-		doneTitle: 'Уже сделано на ваши деньги',
-		none: 'Сейчас открытых целей нет. Поддержать проект можно и так.',
-	},
-	en: {
-		raised: 'raised',
-		of: 'of',
-		status: { open: 'Collecting', working: 'Collected, in work', done: 'Done' },
-		give: 'Support',
-		giveAny: 'Support without a goal',
-		doneIn: 'Shipped in',
-		doneTitle: 'Already made with your money',
-		none: 'No open goals right now. You can still support the project.',
-	},
-}[lang];
+const items: RoadmapItem[] = [
+  {
+    id: 'pterodactyl',
+    title: { ru: 'Ноды на Pterodactyl', en: 'Pterodactyl nodes' },
+    about: {
+      ru: 'Запуск ноды на обычном игровом хостинге без root и Docker внутри контейнера. Понадобится проверить выделенные TCP/UDP-порты провайдера.',
+      en: 'Run a node on regular game hosting without root or Docker inside the container. The provider’s TCP/UDP allocations must be verified.',
+    },
+  },
+  {
+    id: 'migration',
+    title: { ru: 'Перенос панели на другой сервер', en: 'Move the panel to another server' },
+    about: {
+      ru: 'Резервная копия, проверка восстановления, перенос клиентов, тарифов, настроек и нод, возможность отката.',
+      en: 'Back up and validate restoration of users, plans, settings and nodes, with a rollback path.',
+    },
+  },
+  {
+    id: 'external',
+    title: { ru: 'Внешние подписки как ноды', en: 'External subscriptions as nodes' },
+    about: {
+      ru: 'Добавление внешней подписки, безопасное обновление конфигурации и сохранение последней рабочей версии.',
+      en: 'Import external subscriptions, refresh them safely and keep the last known-good configuration.',
+    },
+  },
+  {
+    id: 'admin-bot',
+    title: { ru: 'Административный Telegram-бот', en: 'Telegram admin bot' },
+    about: {
+      ru: 'Управление клиентами, подписками и нодами с проверкой прав, подтверждением опасных действий и аудитом.',
+      en: 'Manage users, subscriptions and nodes with permission checks, confirmations for risky actions and audit logging.',
+    },
+  },
+  {
+    id: 'addons',
+    title: { ru: 'Магазин аддонов и готовых ботов', en: 'Addon store and ready-made bots' },
+    about: {
+      ru: 'Несколько отдельных ботов, платёжные адаптеры и интеграции в расширяемом каталоге.',
+      en: 'Multiple independent bots, payment adapters and integrations in an extensible catalog.',
+    },
+  },
+  {
+    id: 'api',
+    title: { ru: 'API для собственных ботов', en: 'API for custom bots' },
+    about: {
+      ru: 'Документированный API, ключи с ограниченными правами и webhooks для сторонних разработчиков.',
+      en: 'A documented API, scoped keys and webhooks for third-party developers.',
+    },
+  },
+];
 
-const money = (n: number, currency: string) =>
-	new Intl.NumberFormat(lang === 'ru' ? 'ru-RU' : 'en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
-const pct = (g: Goal) => Math.min(100, Math.round((g.raised / g.target) * 100));
+const active = compact ? items.slice(0, 3) : items;
+const t = lang === 'ru'
+  ? { status: 'В плане', core: 'Входит в бесплатную основную версию' }
+  : { status: 'Planned', core: 'Included in the free core' };
 ---
 
 <div class:list={['goals', 'not-content', { compact }]}>
-	{active.length === 0 ? <p class="none">{t.none}</p> : null}
-	<ul class="grid">
-		{
-			active.map((g) => (
-				<li class="goal" id={g.id}>
-					<div class="head">
-						<h3>{text(g.title)}</h3>
-						<span class:list={['pill', g.status]}>{t.status[g.status]}</span>
-					</div>
-					{text(g.about) ? <p class="about">{text(g.about)}</p> : null}
-					<div
-						class="bar"
-						role="progressbar"
-						aria-valuemin={0}
-						aria-valuemax={g.target}
-						aria-valuenow={Math.min(g.raised, g.target)}
-						aria-label={`${text(g.title)}: ${t.raised} ${money(g.raised, g.currency)} ${t.of} ${money(g.target, g.currency)}`}
-					>
-						<i style={`width: ${pct(g)}%`} />
-					</div>
-					<div class="foot">
-						<span>
-							<b>{money(g.raised, g.currency)}</b> {t.of} {money(g.target, g.currency)} · {pct(g)}%
-						</span>
-						{g.status === 'open' ? (
-							<a class="give" href={g.url || goals.donate} rel="noopener" target="_blank">
-								{t.give}
-							</a>
-						) : null}
-					</div>
-				</li>
-			))
-		}
-	</ul>
-	{compact ? null : <a class="any" href={goals.donate} rel="noopener" target="_blank">{t.giveAny}</a>}
-	{
-		!compact && done.length > 0 ? (
-			<section class="done" aria-labelledby="goals-done">
-				<h3 id="goals-done">{t.doneTitle}</h3>
-				<ul>
-					{done.map((g) => (
-						<li id={g.id}>
-							<span>{text(g.title)}</span>
-							<span class="ver">
-								{t.doneIn} {g.version}
-							</span>
-						</li>
-					))}
-				</ul>
-			</section>
-		) : null
-	}
+  <ul class="grid">
+    {active.map((item) => (
+      <li class="goal" id={item.id}>
+        <div class="head">
+          <h3>{item.title[lang]}</h3>
+          <span class="pill planned">{t.status}</span>
+        </div>
+        <p class="about">{item.about[lang]}</p>
+        <div class="foot">
+          <span>{t.core}</span>
+        </div>
+      </li>
+    ))}
+  </ul>
 </div>
 
 <style>
-	.goals {
-		margin-top: 1.5rem;
-		display: flex;
-		flex-direction: column;
-		gap: 1.5rem;
-	}
+  .goals {
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
 
-	.grid {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: grid;
-		gap: 1rem;
-		grid-template-columns: minmax(0, 1fr);
-	}
+  .grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr);
+  }
 
-	@media (min-width: 50rem) {
-		.grid {
-			grid-template-columns: repeat(2, minmax(0, 1fr));
-		}
-	}
+  @media (min-width: 50rem) {
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
 
-	@media (min-width: 64rem) {
-		.compact .grid {
-			grid-template-columns: repeat(3, minmax(0, 1fr));
-		}
-	}
+  @media (min-width: 64rem) {
+    .compact .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
 
-	.compact {
-		margin-top: 0;
-	}
+  .compact { margin-top: 0; }
 
-	.goal {
-		display: flex;
-		flex-direction: column;
-		gap: 0.75rem;
-		padding: 1.25rem;
-		border-radius: var(--mk-radius-lg);
-		background: var(--mk-surface);
-		border: 1px solid var(--mk-hairline);
-	}
+  .goal {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    border-radius: var(--mk-radius-lg);
+    background: var(--mk-surface);
+    border: 1px solid var(--mk-hairline);
+  }
 
-	.head {
-		display: flex;
-		align-items: flex-start;
-		justify-content: space-between;
-		gap: 0.75rem;
-	}
+  .head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
 
-	h3 {
-		margin: 0;
-		font-size: 1.0625rem;
-		font-weight: 650;
-		line-height: 1.35;
-		color: var(--mk-ink);
-	}
+  h3 {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 650;
+    line-height: 1.35;
+    color: var(--mk-ink);
+  }
 
-	.pill {
-		flex: none;
-		padding: 0.125rem 0.625rem;
-		border-radius: 999px;
-		font-size: 0.75rem;
-		font-weight: 600;
-		white-space: nowrap;
-		background: var(--mk-accent-soft);
-		color: var(--mk-accent-text);
-	}
+  .pill {
+    flex: none;
+    padding: 0.125rem 0.625rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    background: var(--mk-accent-soft);
+    color: var(--mk-accent-text);
+  }
 
-	.pill.working {
-		background: var(--mk-leaf-soft);
-		color: var(--mk-leaf);
-	}
+  .about {
+    margin: 0;
+    font-size: 0.9375rem;
+    color: var(--mk-text);
+  }
 
-	.about {
-		margin: 0;
-		font-size: 0.9375rem;
-		color: var(--mk-text);
-	}
-
-	.bar {
-		height: 0.5rem;
-		border-radius: 999px;
-		background: var(--mk-hairline);
-		overflow: hidden;
-	}
-
-	.bar i {
-		display: block;
-		height: 100%;
-		border-radius: inherit;
-		background: var(--mk-orange);
-	}
-
-	.foot {
-		margin-top: auto;
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		justify-content: space-between;
-		gap: 0.5rem 1rem;
-		font-size: 0.875rem;
-		color: var(--mk-muted);
-	}
-
-	.foot b {
-		color: var(--mk-ink);
-		font-weight: 650;
-	}
-
-	.give,
-	.any {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		min-height: 2.25rem;
-		padding: 0 1rem;
-		border-radius: var(--mk-radius);
-		font-size: 0.875rem;
-		font-weight: 600;
-		text-decoration: none;
-		transition: background-color 0.2s var(--mk-ease), border-color 0.2s var(--mk-ease);
-	}
-
-	.give {
-		background: var(--mk-orange);
-		color: var(--mk-on-orange);
-	}
-
-	.give:hover {
-		background: var(--mk-orange-hover);
-	}
-
-	.any {
-		align-self: flex-start;
-		border: 1px solid var(--mk-hairline-strong);
-		color: var(--mk-ink);
-	}
-
-	.any:hover {
-		border-color: var(--mk-accent);
-	}
-
-	.give:focus-visible,
-	.any:focus-visible {
-		outline: 2px solid var(--mk-accent);
-		outline-offset: 2px;
-	}
-
-	.none {
-		margin: 0;
-		color: var(--mk-muted);
-	}
-
-	.done h3 {
-		margin-bottom: 0.75rem;
-	}
-
-	.done ul {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		border-top: 1px solid var(--mk-hairline);
-	}
-
-	.done li {
-		display: flex;
-		justify-content: space-between;
-		gap: 1rem;
-		padding: 0.75rem 0;
-		border-bottom: 1px solid var(--mk-hairline);
-		font-size: 0.9375rem;
-		color: var(--mk-ink);
-	}
-
-	.ver {
-		flex: none;
-		color: var(--mk-muted);
-	}
+  .foot {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--mk-muted);
+  }
 </style>
