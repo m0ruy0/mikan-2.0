@@ -246,13 +246,19 @@ func (b *Bot) adminDevices(ctx context.Context, id int64) string {
 	}
 	const limit = 8
 	for i, d := range bound {
-		if i >= limit { break }
+		if i >= limit {
+			break
+		}
 		label := strings.TrimSpace(strings.Join([]string{d.Model, d.OS, d.App}, " · "))
-		if label == "" { label = "device" }
+		if label == "" {
+			label = "device"
+		}
 		fmt.Fprintf(&out, "• %s — %s\n", html.EscapeString(label), time.Unix(d.LastSeen, 0).UTC().Format("02.01.2006"))
 	}
 	for i, d := range recent {
-		if i >= limit { break }
+		if i >= limit {
+			break
+		}
 		fmt.Fprintf(&out, "• IP <code>%s</code> — %s\n", html.EscapeString(d.Ip), time.Unix(d.LastSeen, 0).UTC().Format("02.01.2006"))
 	}
 	return out.String()
@@ -279,16 +285,26 @@ func (b *Bot) adminNodes(ctx context.Context) string {
 	}
 	for _, n := range nodes {
 		state := "выключена"
-		if n.Enabled != 0 { state = "включена" }
+		if n.Enabled != 0 {
+			state = "включена"
+		}
 		if b.Config(ctx).Lang == "en" {
 			state = "disabled"
-			if n.Enabled != 0 { state = "enabled" }
+			if n.Enabled != 0 {
+				state = "enabled"
+			}
 		}
 		host := strings.TrimSpace(n.PublicHost)
-		if host == "" { host = strings.TrimSpace(n.Domain) }
-		if host == "" { host = "—" }
+		if host == "" {
+			host = strings.TrimSpace(n.Domain)
+		}
+		if host == "" {
+			host = "—"
+		}
 		inbounds, inboundErr := b.d.Store.Q.ListNodeInbounds(ctx, n.ID)
-		if inboundErr != nil { return b.adminReadError(ctx) }
+		if inboundErr != nil {
+			return b.adminReadError(ctx)
+		}
 		fmt.Fprintf(&out, "• <b>%s</b> · %s · %d inbounds · <code>%s</code>\n", html.EscapeString(n.Name), state, len(inbounds), html.EscapeString(host))
 	}
 	return out.String()
@@ -302,10 +318,17 @@ func (b *Bot) adminReadError(ctx context.Context) string {
 }
 
 func formatAdminBytes(n int64) string {
-	if n < 0 { n = 0 }
+	if n < 0 {
+		n = 0
+	}
 	const unit = int64(1024)
-	if n < unit { return fmt.Sprintf("%d B", n) }
+	if n < unit {
+		return fmt.Sprintf("%d B", n)
+	}
 	div, exp := unit, 0
-	for v := n / unit; v >= unit && exp < 5; v /= unit { div *= unit; exp++ }
+	for v := n / unit; v >= unit && exp < 5; v /= unit {
+		div *= unit
+		exp++
+	}
 	return fmt.Sprintf("%.1f %ciB", float64(n)/float64(div), "KMGTPE"[exp])
 }
