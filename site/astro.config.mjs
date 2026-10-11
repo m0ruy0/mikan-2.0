@@ -14,7 +14,7 @@ export default defineConfig({
 		starlight({
 			title: 'Mikan 2.0',
 			description:
-				'VPN-панель на ядре mihomo с открытой дорожной картой Mikan 2.0. Форк под GPL-3.0.',
+				'Открытый форк Mikan 2.0: VPN-панель на ядре mihomo под GPL-3.0.',
 			logo: { src: './src/assets/mikan20-logo.svg', alt: 'Mikan 2.0' },
 			favicon: '/favicon.png',
 			defaultLocale: 'root',
@@ -75,7 +75,7 @@ export default defineConfig({
 				{
 					label: 'Ноды',
 					translations: { en: 'Nodes' },
-					items: [{ slug: 'nodes/nodes' }, { slug: 'nodes/cascades' }, { slug: 'nodes/warp' }],
+					items: [{ slug: 'nodes/nodes' }, { slug: 'nodes/cascades' }, { slug: 'nodes/warp' }, { slug: 'nodes/pterodactyl' }],
 				},
 				{
 					label: 'Протоколы',
@@ -113,6 +113,7 @@ export default defineConfig({
 					items: [
 						{ slug: 'operations/updates' },
 						{ slug: 'operations/backups' },
+						{ slug: 'operations/migration' },
 						{ slug: 'operations/import' },
 						{ slug: 'operations/alerts' },
 						{ slug: 'operations/cli' },
