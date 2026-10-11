@@ -26,7 +26,7 @@ INDEX="https://github.com/$REPO/releases/download/updates/index.json"
 # The public half of the key that signs every release's manifest.json: the same key as
 # internal/release.PublicKey (installer/src/release.rs checks that this text matches it).
 PUBKEY='-----BEGIN PUBLIC KEY-----
-MCowBQYDK2VwAyEA98Ry4nYspdB8MQYSaQjwgAKNHd57Y6zNoYdJv3SlAEM=
+MCowBQYDK2VwAyEAjrA0HDI4pTT56c3VkldubmPdDgNIYMXGf14qyeZFulY=
 -----END PUBLIC KEY-----'
 
 fail() {
