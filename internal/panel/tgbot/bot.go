@@ -88,10 +88,10 @@ type Bot struct {
 	input  map[int64][]time.Time // chat → its recent messages and presses, for the flood guard
 	bcast  BroadcastProgress
 	// Subscriptions somebody asked to take over: by subscription, and who was refused.
-	transfers map[int64]transfer
-	refused   map[string]time.Time
+	transfers     map[int64]transfer
+	refused       map[string]time.Time
 	adminActionMu sync.Mutex
-	adminActions map[string]pendingAdminAction
+	adminActions  map[string]pendingAdminAction
 
 	noticeMu sync.Mutex
 	notices  map[string]*noticeState
