@@ -501,13 +501,7 @@ mod tests {
         let key = signer.verifying_key();
         let accept = |data: &[u8]| parse(data, &STANDARD.encode(signer.sign(data).to_bytes()), &key).is_ok();
         assert!(accept(&manifest("0.4.4", "ghcr.io/m0ruy0/mikan")));
-        for bad in [
-            "ghcr.io/someone-else/mikan",
-            "ghcr.io/m0ruy0/../x",
-            "ghcr.io/m0ruy0/Mi kan",
-            "ghcr.io/m0ruy0/",
-            "ghcr.io/m0ruy0/m$x",
-        ] {
+        for bad in ["ghcr.io/someone-else/mikan", "ghcr.io/m0ruy0/../x", "ghcr.io/m0ruy0/Mi kan", "ghcr.io/m0ruy0/", "ghcr.io/m0ruy0/m$x"] {
             assert!(!accept(&manifest("0.4.4", bad)), "{bad}");
         }
         let short_hash = String::from_utf8(manifest("0.4.4", "ghcr.io/m0ruy0/mikan")).unwrap().replace(&"b".repeat(64), "bb");
@@ -733,10 +727,7 @@ mod tests {
         f.index(&["0.5.0.1 nightly 0.4.5"]);
         fallback("no release of the channel");
         f.index(&["0.5.0.1 stable 0.4.5"]);
-        f.put(
-            &format!("https://github.com/{REPO}/releases/download/v0.5.0.1/manifest.json"),
-            manifest("0.5.0.2", "ghcr.io/m0ruy0/mikan"),
-        );
+        f.put(&format!("https://github.com/{REPO}/releases/download/v0.5.0.1/manifest.json"), manifest("0.5.0.2", "ghcr.io/m0ruy0/mikan"));
         fallback("a manifest of another version");
         f.files.borrow_mut().clear();
         assert!(f.find(Some("0.4.5"), Channel::Stable).is_err(), "nothing at all");
