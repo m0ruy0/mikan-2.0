@@ -5,8 +5,8 @@ edition = "2024"
 # File::try_lock (the one lock for every change to the server) is stable from 1.89.
 rust-version = "1.89"
 license = "GPL-3.0-only"
-description = "Installs the mikan VPN panel and manages it from the server's shell"
-repository = "https://github.com/Miroshka000/mikan"
+description = "Installs the Mikan 2.0 VPN panel and manages it from the server's shell"
+repository = "https://github.com/m0ruy0/mikan-2.0"
 publish = false
 
 # The release version comes from the tag: MIKAN_VERSION=v0.3.9 at build time.
