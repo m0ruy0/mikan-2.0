@@ -31,7 +31,7 @@ curl -fsSL https://github.com/m0ruy0/mikan-2.0/releases/latest/download/install.
 
 The installer will verify the signed release manifest and the downloaded binary's SHA-256 checksum before starting the setup wizard. Do not use the original Mikan installer or image for Mikan 2.0.
 
-Read the [installation guide](site/src/content/docs/en/start/install.mdx).
+Read the [installation guide](https://m0ruy0.github.io/mikan-2.0/en/start/install/).
 
 ## What we are building
 
