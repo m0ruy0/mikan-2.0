@@ -2,18 +2,18 @@
 // src/content/docs (Russian) and src/content/docs/en (English).
 
 export const links = {
-	github: 'https://github.com/Miroshka000/mikan',
-	releases: 'https://github.com/Miroshka000/mikan/releases',
-	issues: 'https://github.com/Miroshka000/mikan/issues',
-	license: 'https://github.com/Miroshka000/mikan/blob/main/LICENSE',
-	sponsor: 'https://web.tribute.tg/d/REA',
+	github: 'https://github.com/m0ruy0/mikan-2.0',
+	releases: 'https://github.com/m0ruy0/mikan-2.0/releases',
+	issues: 'https://github.com/m0ruy0/mikan-2.0',
+	license: 'https://github.com/m0ruy0/mikan-2.0/blob/main/LICENSE',
+	sponsor: 'https://m0ruy0.github.io/mikan-2.0/support/',
 	mihomo: 'https://github.com/MetaCubeX/mihomo',
 };
 
 // Two lines, so the command fits the hero without wrapping in odd places; bash reads the
 // trailing backslash as one command when it is pasted.
 export const installCommand =
-	'curl -fsSL https://github.com/Miroshka000/mikan/releases/latest/download/install.sh \\\n  | sudo bash';
+	'curl -fsSL https://github.com/m0ruy0/mikan-2.0/releases/latest/download/install.sh \\\n  | sudo bash';
 
 export type Lang = 'ru' | 'en';
 export type Screen = 'dashboard' | 'users' | 'inbounds' | 'telegram' | 'settings';
@@ -23,16 +23,16 @@ const docs = (lang: Lang, path: string) => `${import.meta.env.BASE_URL}${lang ==
 export const strings = {
 	ru: {
 		hero: {
-			title: 'Своя VPN-панель на ядре mihomo',
-			lead: 'Протоколы, ноды, подписки и Telegram-бот с оплатой в одной панели. Ставится одной командой, сама переживает блокировки. Бесплатная, с открытым кодом под GPL-3.0.',
-			requirements: 'Ubuntu 22.04+ или Debian 12+, amd64 или arm64. Установщик сам ставит Docker и в конце выдаёт ссылку на админку.',
-			primary: 'Установить',
-			secondary: 'Как это устроено',
-			art: 'Мандарин, символ mikan',
+			title: 'Mikan 2.0 — VPN-панель с открытым развитием',
+			lead: 'Открытый форк Mikan: сохраняем основу панели и развиваем ноды Pterodactyl, внешний источник подписок, магазин аддонов и API для собственных ботов. Новые возможности планируются бесплатными.',
+			requirements: 'Поддерживаемая установка появится с первым подписанным релизом. До публикации релиза не запускайте команду на production-сервере.',
+			primary: 'Установка',
+			secondary: 'Дорожная карта',
+			art: 'Новый символ Mikan 2.0 — мандарин с сетевыми орбитами',
 		},
 		screens: {
 			title: 'Одна панель на всё',
-			lead: 'Настоящие экраны mikan. Есть светлая и тёмная темы, русский и английский интерфейс.',
+			lead: 'Реальные экраны исходного интерфейса Mikan. По мере развития форка снимки будут обновляться.',
 			label: 'Экраны панели',
 			items: {
 				dashboard: ['Обзор', 'Онлайн, трафик за сутки и состояние каждого подключения на одном экране.'],
@@ -43,7 +43,7 @@ export const strings = {
 			} satisfies Record<Screen, [string, string]>,
 		},
 		features: {
-			title: 'Что внутри',
+			title: 'Что уже есть в основе',
 			items: [
 				{
 					title: 'Ядро mihomo внутри ноды',
@@ -109,49 +109,49 @@ export const strings = {
 			href: docs('ru', 'subscriptions/page/'),
 			alts: ['Страница подписки на телефоне', 'Обзор панели на телефоне'],
 		},
-		funding: {
-			badge: 'Идёт сбор на новые функции',
-			title: 'Сборы на функции',
-			lead: 'Функции, которые просит сообщество, мы делаем, когда на них собрана сумма. Выберите нужную и поддержите её.',
-			all: 'Все цели',
+		roadmap: {
+			badge: 'Бесплатная дорожная карта',
+			title: 'Что развиваем в Mikan 2.0',
+			lead: 'Эти функции планируются для бесплатной основной версии. Начало разработки не зависит от сбора пожертвований.',
+			all: 'Полная дорожная карта',
 		},
 		cta: {
-			title: 'Поставить на свой сервер',
-			text: 'Одна команда на чистом сервере. Дальше всё делается в панели, а команда mikan открывает меню управления.',
-			docs: 'Читать про установку',
-			sponsorTitle: 'Поддержать проект',
-			sponsorText: 'mikan бесплатный и с открытым кодом. Если панель вам пригодилась, автора можно поддержать.',
-			sponsor: 'Поддержать на Tribute',
-			goals: 'На что собираем',
-			github: 'Код на GitHub',
+			title: 'Mikan 2.0 — открытая разработка',
+			text: 'Стабильная установка одной командой будет доступна после первого подписанного релиза. Пока можно изучить код и дорожную карту.',
+			docs: 'Инструкция по установке',
+			sponsorTitle: 'Разработка без закрытых функций',
+			sponsorText: 'Базовые возможности из дорожной карты планируются бесплатными. Статус каждой идеи и технические ограничения опубликованы открыто.',
+			sponsor: 'Открыть дорожную карту',
+			goals: 'Планы разработки',
+			github: 'Исходный код на GitHub',
 		},
 		header: {
 			label: 'Проект',
 			githubLabel: 'GitHub: исходный код mikan',
-			support: 'Поддержать',
-			supportLabel: 'Поддержать проект на Tribute',
+			support: 'Дорожная карта',
+			supportLabel: 'Дорожная карта Mikan 2.0',
 			otherLanguage: 'English version',
 		},
 		footer: {
 			label: 'Ссылки проекта',
-			license: 'mikan: свободная программа под GNU GPL v3. Внутри mihomo (GPL-3.0).',
+			license: 'Mikan 2.0 — модифицированный форк под GNU GPL v3; сохраняется авторство исходного проекта.',
 			releases: 'Релизы',
 			issues: 'Сообщить о проблеме',
-			sponsor: 'Поддержать',
+			sponsor: 'Дорожная карта',
 		},
 	},
 	en: {
 		hero: {
-			title: 'Your own VPN panel on the mihomo core',
-			lead: 'Protocols, nodes, subscriptions and a Telegram bot that takes payments, in one panel. One command to install, survives blocking on its own. Free and open source under GPL-3.0.',
-			requirements: 'Ubuntu 22.04+ or Debian 12+, amd64 or arm64. The installer sets up Docker by itself and prints your admin link at the end.',
-			primary: 'Install',
-			secondary: 'How it works',
-			art: 'A mandarin, the mikan mascot',
+			title: 'Mikan 2.0 — a VPN panel built in the open',
+			lead: 'An open Mikan fork: we keep the panel foundation and develop Pterodactyl nodes, external subscription sources, an addon store and an API for custom bots. New core features are planned to remain free.',
+			requirements: 'The supported installer will be available with the first signed release. Do not run the command on a production server before that release is published.',
+			primary: 'Installation',
+			secondary: 'Roadmap',
+			art: 'Mikan 2.0 mandarin mascot with network orbits',
 		},
 		screens: {
 			title: 'One panel for all of it',
-			lead: 'Real screens of mikan. Light and dark themes, Russian and English interface.',
+			lead: 'Real screens from the upstream Mikan interface. Screenshots will be refreshed as this fork evolves.',
 			label: 'Panel screens',
 			items: {
 				dashboard: ['Overview', 'Who is online, traffic for the day and the state of every protocol on one screen.'],
@@ -162,7 +162,7 @@ export const strings = {
 			} satisfies Record<Screen, [string, string]>,
 		},
 		features: {
-			title: 'What is inside',
+			title: 'What the base already includes',
 			items: [
 				{
 					title: 'mihomo inside the node',
@@ -228,27 +228,27 @@ export const strings = {
 			href: docs('en', 'subscriptions/page/'),
 			alts: ['The subscription page on a phone', 'The panel overview on a phone'],
 		},
-		funding: {
-			badge: 'Collecting for new features',
-			title: 'Funding features',
-			lead: 'Features the community asks for get built once their sum is collected. Pick the one you need and support it.',
-			all: 'All goals',
+		roadmap: {
+			badge: 'Free core roadmap',
+			title: 'What we are building in Mikan 2.0',
+			lead: 'These features are planned for the free core. Development is not gated by fundraising targets.',
+			all: 'Full roadmap',
 		},
 		cta: {
-			title: 'Put it on your server',
-			text: 'One command on a fresh server. Everything else happens in the panel, and the mikan command opens the management menu.',
-			docs: 'Read about the install',
-			sponsorTitle: 'Support the project',
-			sponsorText: 'mikan is free and open source. If the panel is useful to you, you can support its author.',
-			sponsor: 'Support on Tribute',
-			goals: 'What we collect for',
-			github: 'Code on GitHub',
+			title: 'Mikan 2.0 — built in the open',
+			text: 'The one-command supported installer will be available after the first signed release. Until then, explore the source and roadmap.',
+			docs: 'Installation guide',
+			sponsorTitle: 'No features hidden behind fundraising',
+			sponsorText: 'Core roadmap features are planned to be free. Status and technical limits are published openly.',
+			sponsor: 'Open the roadmap',
+			goals: 'Development plan',
+			github: 'Source code on GitHub',
 		},
 		header: {
 			label: 'Project',
 			githubLabel: 'GitHub: the mikan source code',
-			support: 'Support',
-			supportLabel: 'Support the project on Tribute',
+			support: 'Roadmap',
+			supportLabel: 'Mikan 2.0 roadmap',
 			otherLanguage: 'Русская версия',
 		},
 		footer: {
