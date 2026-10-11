@@ -6,7 +6,7 @@ export const links = {
 	releases: 'https://github.com/m0ruy0/mikan-2.0/releases',
 	issues: 'https://github.com/m0ruy0/mikan-2.0',
 	license: 'https://github.com/m0ruy0/mikan-2.0/blob/main/LICENSE',
-	sponsor: 'https://m0ruy0.github.io/mikan-2.0/support/',
+	sponsor: 'https://github.com/m0ruy0/mikan-2.0/blob/main/docs/mikan20-roadmap.md',
 	mihomo: 'https://github.com/MetaCubeX/mihomo',
 };
 
@@ -136,7 +136,7 @@ export const strings = {
 			label: 'Ссылки проекта',
 			license: 'Mikan 2.0 — модифицированный форк под GNU GPL v3; сохраняется авторство исходного проекта.',
 			releases: 'Релизы',
-			issues: 'Сообщить о проблеме',
+			issues: 'Репозиторий',
 			sponsor: 'Дорожная карта',
 		},
 	},
