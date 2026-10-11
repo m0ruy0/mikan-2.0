@@ -52,7 +52,7 @@
       "name": "Trusted Mikan 2.0 release public key",
       "description": "Ed25519 SubjectPublicKeyInfo encoded as base64; used to verify the signed release manifest.",
       "env_variable": "MIKAN_RELEASE_PUBLIC_KEY_B64",
-      "default_value": "MCowBQYDK2VwAyEAh/yUTm1/hHKgSchuvt0rBGfMiVFS8zMDVgNq88wQPMk=",
+      "default_value": "MCowBQYDK2VwAyEAjrA0HDI4pTT56c3VkldubmPdDgNIYMXGf14qyeZFulY=",
       "user_viewable": false,
       "user_editable": false,
       "rules": "required|string",
