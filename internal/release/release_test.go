@@ -91,13 +91,28 @@ func TestParseNodeAssets(t *testing.T) {
 		t.Fatalf("valid standalone node assets refused: %v", err)
 	}
 	for name, mutate := range map[string]func(*Manifest){
-		"missing architecture": func(bad *Manifest) { delete(bad.Node, "aarch64") },
-		"unknown architecture": func(bad *Manifest) { bad.Node["mips"] = bad.Node["x86_64"] },
-		"bad checksum": func(bad *Manifest) { a := bad.Node["x86_64"]; a.SHA256 = "abc"; bad.Node["x86_64"] = a },
-		"external URL": func(bad *Manifest) { a := bad.Node["x86_64"]; a.URL = "https://example.com/mikan-node"; bad.Node["x86_64"] = a },
+		"missing architecture": func(bad *Manifest) {
+			delete(bad.Node, "aarch64")
+		},
+		"unknown architecture": func(bad *Manifest) {
+			bad.Node["mips"] = bad.Node["x86_64"]
+		},
+		"bad checksum": func(bad *Manifest) {
+			a := bad.Node["x86_64"]
+			a.SHA256 = "abc"
+			bad.Node["x86_64"] = a
+		},
+		"external URL": func(bad *Manifest) {
+			a := bad.Node["x86_64"]
+			a.URL = "https://example.com/mikan-node"
+			bad.Node["x86_64"] = a
+		},
 	} {
 		bad := m
-		bad.Node = map[string]Asset{"x86_64": m.Node["x86_64"], "aarch64": m.Node["aarch64"]}
+		bad.Node = map[string]Asset{
+			"x86_64":  m.Node["x86_64"],
+			"aarch64": m.Node["aarch64"],
+		}
 		mutate(&bad)
 		bytes, err := json.Marshal(bad)
 		if err != nil {
