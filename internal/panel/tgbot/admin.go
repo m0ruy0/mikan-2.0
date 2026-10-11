@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"mikan/internal/panel/store/db"
 )
 
 // adminCommand handles the read-only /admin surface of the subscriber bot. It is
