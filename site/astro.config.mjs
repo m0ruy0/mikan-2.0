@@ -4,8 +4,7 @@ import starlight from '@astrojs/starlight';
 import starlightLinksValidator from 'starlight-links-validator';
 import changelog from './integrations/changelog.mjs';
 
-// GitHub Pages serves the project at m0ruy0.github.io/mikan-2.0/. Links inside the docs are
-// written with the base (/mikan/...), and the link validator checks them on every build.
+// GitHub Pages serves the project at m0ruy0.github.io/mikan-2.0/. Links inside the docs use the repository base (/mikan-2.0/...), and the link validator checks them on every build.
 export default defineConfig({
 	site: 'https://m0ruy0.github.io',
 	base: '/mikan-2.0',
@@ -16,7 +15,7 @@ export default defineConfig({
 			title: 'Mikan 2.0',
 			description:
 				'VPN-панель на ядре mihomo с открытой дорожной картой Mikan 2.0. Форк под GPL-3.0.',
-			logo: { src: './src/assets/logo.webp', alt: '' },
+			logo: { src: './src/assets/mikan20-logo.svg', alt: 'Mikan 2.0' },
 			favicon: '/favicon.png',
 			defaultLocale: 'root',
 			locales: {
