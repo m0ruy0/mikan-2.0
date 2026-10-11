@@ -1,0 +1,62 @@
+{
+  "_comment": "Import this Egg in Pterodactyl. The Mikan 2.0 release must publish signed standalone node assets before this Egg can start successfully.",
+  "meta": {
+    "version": "PTDL_v2",
+    "update_url": null
+  },
+  "exported_at": "2026-10-11T00:00:00+00:00",
+  "name": "Mikan 2.0 Node",
+  "author": "m0ruy0",
+  "description": "Runs the Mikan 2.0 node binary as an unprivileged Pterodactyl server. Requires outbound HTTPS, OpenSSL, Python 3 and provider-allocated client TCP/UDP ports. No root or Docker socket is used inside the server container.",
+  "features": [],
+  "docker_images": {
+    "Python 3.12": "ghcr.io/parkervcp/yolks:python_3.12"
+  },
+  "file_denylist": [],
+  "startup": "bash /home/container/start.sh",
+  "config": {
+    "files": "{}",
+    "startup": "{\"done\":\"Mikan Pterodactyl node started\"}",
+    "logs": "{}",
+    "stop": "^C"
+  },
+  "scripts": {
+    "installation": {
+      "script": "#!/bin/bash\nset -e\nmkdir -p /mnt/server\ncat > /mnt/server/start.sh <<'MIKAN_START'\n#!/usr/bin/env bash\nset -Eeuo pipefail\ncd /home/container\n\n: \"${MIKAN_NODE_JOIN:?Set MIKAN_NODE_JOIN to the one-time key shown by Mikan → Nodes → Add node}\"\n: \"${SERVER_PORT:?Pterodactyl primary allocation is required}\"\n: \"${MIKAN_RELEASE_MANIFEST_URL:?Missing signed release manifest URL}\"\n: \"${MIKAN_RELEASE_PUBLIC_KEY_B64:?Missing trusted Mikan 2.0 public key}\"\n\ncase \"$(uname -m)\" in\n  x86_64|amd64) arch=\"x86_64\" ;;\n  aarch64|arm64) arch=\"aarch64\" ;;\n  *) echo \"Unsupported architecture: $(uname -m)\" >&2; exit 1 ;;\nesac\n\nfor tool in curl openssl python3 sha256sum base64; do\n  command -v \"$tool\" >/dev/null 2>&1 || { echo \"Required tool missing from container: $tool\" >&2; exit 1; }\ndone\n\nmkdir -p /home/container/data /home/container/run\nwork=\"$(mktemp -d /home/container/.mikan-bootstrap.XXXXXX)\"\ntrap 'rm -rf \"$work\"' EXIT\n\ncurl -fsSL --retry 3 \"$MIKAN_RELEASE_MANIFEST_URL\" -o \"$work/manifest.json\"\ncurl -fsSL --retry 3 \"${MIKAN_RELEASE_MANIFEST_URL}.sig\" -o \"$work/manifest.json.sig\"\n\n{\n  printf '%s\\n' '-----BEGIN PUBLIC KEY-----'\n  printf '%s\\n' \"$MIKAN_RELEASE_PUBLIC_KEY_B64\" | fold -w 64\n  printf '%s\\n' '-----END PUBLIC KEY-----'\n} > \"$work/release-public.pem\"\nbase64 -d \"$work/manifest.json.sig\" > \"$work/manifest.sig\"\nif ! openssl pkeyutl -verify -pubin -inkey \"$work/release-public.pem\" -rawin -in \"$work/manifest.json\" -sigfile \"$work/manifest.sig\" >/dev/null 2>&1; then\n  echo \"The Mikan 2.0 release manifest signature is invalid; refusing to start.\" >&2\n  exit 1\nfi\n\npython3 - \"$work/manifest.json\" \"$arch\" > \"$work/node-info\" <<'PY'\nimport json, re, sys\nmanifest = json.load(open(sys.argv[1], encoding=\"utf-8\"))\narch = sys.argv[2]\nasset = manifest.get(\"node\", {}).get(arch)\nif not isinstance(asset, dict):\n    raise SystemExit(\"This signed release has no standalone node asset for \" + arch + \". Publish a Mikan 2.0 release with node assets first.\")\nurl, checksum = asset.get(\"url\", \"\"), asset.get(\"sha256\", \"\")\nprefix = \"https://github.com/m0ruy0/mikan-2.0/releases/download/\"\nif not url.startswith(prefix):\n    raise SystemExit(\"The node asset URL is outside the Mikan 2.0 release namespace.\")\nif not re.fullmatch(r\"[0-9a-f]{64}\", checksum):\n    raise SystemExit(\"The signed node asset checksum is invalid.\")\nprint(manifest.get(\"version\", \"\"))\nprint(url)\nprint(checksum)\nPY\nmapfile -t node_info < \"$work/node-info\"\nversion=\"${node_info[0]}\"\nnode_url=\"${node_info[1]}\"\nexpected_sha=\"${node_info[2]}\"\nif [[ -z \"$version\" || -z \"$node_url\" || -z \"$expected_sha\" ]]; then\n  echo \"The signed manifest did not provide a complete node asset.\" >&2\n  exit 1\nfi\n\ninstalled_sha=\"\"\nif [[ -x /home/container/mikan-node ]]; then\n  installed_sha=\"$(sha256sum /home/container/mikan-node | awk '{print $1}')\"\nfi\nif [[ \"$installed_sha\" != \"$expected_sha\" ]]; then\n  echo \"Downloading signed Mikan 2.0 node $version ($arch)...\"\n  curl -fsSL --retry 3 \"$node_url\" -o \"$work/mikan-node\"\n  printf '%s  %s\\n' \"$expected_sha\" \"$work/mikan-node\" | sha256sum --check --status\n  install -m 0755 \"$work/mikan-node\" /home/container/mikan-node.new\n  mv -f /home/container/mikan-node.new /home/container/mikan-node\nelse\n  echo \"Reusing verified Mikan 2.0 node $version ($arch).\"\nfi\n\napi_port=\"$(MIKAN_NODE_JOIN=\"$MIKAN_NODE_JOIN\" /home/container/mikan-node key-port | tr -d '\\r\\n')\"\nif [[ ! \"$api_port\" =~ ^[0-9]+$ ]]; then\n  echo \"Could not read API port from MIKAN_NODE_JOIN.\" >&2\n  exit 1\nfi\nif [[ \"$api_port\" != \"$SERVER_PORT\" ]]; then\n  echo \"Port mismatch: the key expects API port $api_port, but Pterodactyl's primary allocation is $SERVER_PORT.\" >&2\n  echo \"Re-create the node key in Mikan with API port $SERVER_PORT, or change the server allocation to match.\" >&2\n  exit 1\nfi\n\nexport MIKAN_DATA_DIR=/home/container/data\nexport MIKAN_NODE_SOCKET=/home/container/run/node.sock\nexport MIKAN_NODE_API_LISTEN=0.0.0.0\nrm -rf \"$work\"\ntrap - EXIT\necho \"Mikan Pterodactyl node started; signed binary verified. Make sure client inbounds use only allocated TCP/UDP ports.\"\nexec /home/container/mikan-node\nMIKAN_START\nchmod 755 /mnt/server/start.sh\n",
+      "container": "ghcr.io/parkervcp/installers:alpine",
+      "entrypoint": "bash"
+    }
+  },
+  "variables": [
+    {
+      "name": "Mikan node join key",
+      "description": "Paste only the one-time key shown after creating the node in Mikan. Do not paste the full curl command and never share this key.",
+      "env_variable": "MIKAN_NODE_JOIN",
+      "default_value": "",
+      "user_viewable": true,
+      "user_editable": true,
+      "rules": "required|string|min:20|max:4096",
+      "field_type": "text"
+    },
+    {
+      "name": "Signed release manifest URL",
+      "description": "Do not change this unless you operate your own signed Mikan 2.0 release repository.",
+      "env_variable": "MIKAN_RELEASE_MANIFEST_URL",
+      "default_value": "https://github.com/m0ruy0/mikan-2.0/releases/latest/download/manifest.json",
+      "user_viewable": false,
+      "user_editable": false,
+      "rules": "required|url",
+      "field_type": "text"
+    },
+    {
+      "name": "Trusted Mikan 2.0 release public key",
+      "description": "Ed25519 SubjectPublicKeyInfo encoded as base64; used to verify the signed release manifest.",
+      "env_variable": "MIKAN_RELEASE_PUBLIC_KEY_B64",
+      "default_value": "MCowBQYDK2VwAyEAjrA0HDI4pTT56c3VkldubmPdDgNIYMXGf14qyeZFulY=",
+      "user_viewable": false,
+      "user_editable": false,
+      "rules": "required|string",
+      "field_type": "text"
+    }
+  ]
+}

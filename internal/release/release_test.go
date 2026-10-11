@@ -73,6 +73,42 @@ func TestEmbeddedKey(t *testing.T) {
 	}
 }
 
+func TestParseNodeAssets(t *testing.T) {
+	pub, priv, _ := ed25519.GenerateKey(rand.Reader)
+	var m Manifest
+	if err := json.Unmarshal(manifest(t), &m); err != nil {
+		t.Fatal(err)
+	}
+	m.Node = map[string]Asset{
+		"x86_64":  {URL: "https://github.com/" + Repo + "/releases/download/v0.3.9/mikan-node-x86_64", SHA256: strings.Repeat("ab", 32)},
+		"aarch64": {URL: "https://github.com/" + Repo + "/releases/download/v0.3.9/mikan-node-aarch64", SHA256: strings.Repeat("bc", 32)},
+	}
+	data, err := json.Marshal(m)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := Parse(data, Sign(data, priv), pub); err != nil {
+		t.Fatalf("valid standalone node assets refused: %v", err)
+	}
+	for name, mutate := range map[string]func(*Manifest){
+		"missing architecture": func(bad *Manifest) { delete(bad.Node, "aarch64") },
+		"unknown architecture": func(bad *Manifest) { bad.Node["mips"] = bad.Node["x86_64"] },
+		"bad checksum": func(bad *Manifest) { a := bad.Node["x86_64"]; a.SHA256 = "abc"; bad.Node["x86_64"] = a },
+		"external URL": func(bad *Manifest) { a := bad.Node["x86_64"]; a.URL = "https://example.com/mikan-node"; bad.Node["x86_64"] = a },
+	} {
+		bad := m
+		bad.Node = map[string]Asset{"x86_64": m.Node["x86_64"], "aarch64": m.Node["aarch64"]}
+		mutate(&bad)
+		bytes, err := json.Marshal(bad)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := Parse(bytes, Sign(bytes, priv), pub); err == nil {
+			t.Errorf("%s accepted", name)
+		}
+	}
+}
+
 // Only the project's own namespace on GitHub Packages, and installers with a real
 // checksum behind https, as the installer checks (installer/src/release.rs).
 func TestParseImageAndInstallers(t *testing.T) {

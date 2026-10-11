@@ -140,7 +140,9 @@ func makeManifest(args []string) error {
 	out := fs.String("out", "dist", "output directory")
 	tag := fs.String("tag", "", "release tag the installers are downloaded from (default v<version>)")
 	var files assets
+	var nodeFiles assets
 	fs.Var(&files, "asset", "arch=path of an installer binary (repeatable)")
+	fs.Var(&nodeFiles, "node-asset", "arch=path of a standalone mikan-node binary (repeatable)")
 	if err := fs.Parse(args); err != nil {
 		return err
 	}
@@ -200,6 +202,35 @@ func makeManifest(args []string) error {
 	for _, arch := range architectures {
 		if _, ok := m.Installer[arch]; !ok {
 			return fmt.Errorf("no installer for %s: pass -asset %s=path", arch, arch)
+		}
+	}
+	if len(nodeFiles) > 0 {
+		m.Node = make(map[string]release.Asset, len(nodeFiles))
+		for _, a := range nodeFiles {
+			arch, path, ok := strings.Cut(a, "=")
+			if !ok {
+				return fmt.Errorf("-node-asset %q: want arch=path", a)
+			}
+			if !slices.Contains(architectures, arch) {
+				return fmt.Errorf("-node-asset %q: unknown architecture %q, want one of %s", a, arch, strings.Join(architectures, ", "))
+			}
+			if _, dup := m.Node[arch]; dup {
+				return fmt.Errorf("-node-asset %q: %s given twice", a, arch)
+			}
+			data, err := os.ReadFile(path)
+			if err != nil {
+				return err
+			}
+			sum := sha256.Sum256(data)
+			m.Node[arch] = release.Asset{
+				URL:    fmt.Sprintf("https://github.com/%s/releases/download/%s/%s", release.Repo, *tag, filepath.Base(path)),
+				SHA256: hex.EncodeToString(sum[:]),
+			}
+		}
+		for _, arch := range architectures {
+			if _, ok := m.Node[arch]; !ok {
+				return fmt.Errorf("no standalone node for %s: pass -node-asset %s=path", arch, arch)
+			}
 		}
 	}
 	data, err := json.MarshalIndent(m, "", "  ")

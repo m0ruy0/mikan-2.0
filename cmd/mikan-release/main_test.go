@@ -3,7 +3,9 @@ package main
 import (
 	"crypto/ed25519"
 	"crypto/rand"
+	"crypto/sha256"
 	"crypto/x509"
+	"encoding/hex"
 	"encoding/pem"
 	"os"
 	"path/filepath"
@@ -178,6 +180,35 @@ func TestManifestRequiresEveryArchitectureAndLanguage(t *testing.T) {
 
 // A bridge manifest names installers published under another tag; by default they come
 // from the release's own tag.
+func TestManifestIncludesSignedStandaloneNodeAssets(t *testing.T) {
+	f := newFixture(t, changelog)
+	x86 := f.write("mikan-node-x86_64", "standalone node for amd64")
+	arm := f.write("mikan-node-aarch64", "standalone node for arm64")
+	m, err := f.manifest(f.args("0.5.0.1",
+		"-node-asset", "x86_64="+x86,
+		"-node-asset", "aarch64="+arm,
+	))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for arch, body := range map[string]string{"x86_64": "standalone node for amd64", "aarch64": "standalone node for arm64"} {
+		sum := sha256.Sum256([]byte(body))
+		got, ok := m.Node[arch]
+		if !ok {
+			t.Fatalf("missing node binary for %s", arch)
+		}
+		if got.SHA256 != hex.EncodeToString(sum[:]) {
+			t.Errorf("%s checksum = %s", arch, got.SHA256)
+		}
+		if !strings.Contains(got.URL, "/releases/download/v0.5.0.1/mikan-node-"+arch) {
+			t.Errorf("%s URL = %s", arch, got.URL)
+		}
+	}
+	if err := makeManifest(f.args("0.5.0.1", "-node-asset", "x86_64="+x86)); err == nil {
+		t.Fatal("a node release with only one architecture was accepted")
+	}
+}
+
 func TestManifestInstallerURLFollowsTheTag(t *testing.T) {
 	f := newFixture(t, changelog)
 	m, err := f.manifest(f.args("0.4.4"))

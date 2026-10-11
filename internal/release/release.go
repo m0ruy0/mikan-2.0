@@ -40,6 +40,7 @@ type Manifest struct {
 	Image        string            `json:"image" doc:"Образ в GitHub Packages, например ghcr.io/m0ruy0/mikan"`
 	Digest       string            `json:"digest" doc:"sha256 multi-arch образа"`
 	Installer    map[string]Asset  `json:"installer" doc:"Установщик по архитектуре: x86_64, aarch64"`
+	Node         map[string]Asset  `json:"node,omitempty" doc:"Standalone mikan-node binary by architecture: x86_64, aarch64"`
 	Notes        map[string]string `json:"notes" doc:"Что изменилось, markdown по языкам: en, ru"`
 }
 
@@ -99,6 +100,21 @@ func Parse(data []byte, sig string, pub ed25519.PublicKey) (Manifest, error) {
 	for arch, a := range m.Installer {
 		if !sha256Re.MatchString(a.SHA256) || !strings.HasPrefix(a.URL, "https://") {
 			return m, fmt.Errorf("release: installer for %s", arch)
+		}
+	}
+	if len(m.Node) > 0 {
+		for arch, a := range m.Node {
+			if arch != "x86_64" && arch != "aarch64" {
+				return m, fmt.Errorf("release: unsupported node architecture %q", arch)
+			}
+			if !sha256Re.MatchString(a.SHA256) || !strings.HasPrefix(a.URL, "https://github.com/"+Repo+"/releases/download/") {
+				return m, fmt.Errorf("release: node asset for %s", arch)
+			}
+		}
+		for _, arch := range []string{"x86_64", "aarch64"} {
+			if _, ok := m.Node[arch]; !ok {
+				return m, fmt.Errorf("release: no standalone node for %s", arch)
+			}
 		}
 	}
 	return m, nil

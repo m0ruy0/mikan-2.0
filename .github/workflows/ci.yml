@@ -37,6 +37,20 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: validate Pterodactyl Egg and startup script
+        run: |
+          python3 -m json.tool pterodactyl/egg-mikan-node.json >/dev/null
+          python3 - <<'PY'
+          import json, pathlib
+          egg = json.loads(pathlib.Path("pterodactyl/egg-mikan-node.json").read_text(encoding="utf-8"))
+          script = egg["scripts"]["installation"]["script"]
+          marker = "cat > /mnt/server/start.sh <<'MIKAN_START'\n"
+          end_marker = "\nMIKAN_START\n"
+          start = script.index(marker) + len(marker)
+          end = script.index(end_marker, start)
+          pathlib.Path("/tmp/mikan-pterodactyl-start.sh").write_text(script[start:end] + "\n", encoding="utf-8")
+          PY
+          bash -n /tmp/mikan-pterodactyl-start.sh
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: "1.27"

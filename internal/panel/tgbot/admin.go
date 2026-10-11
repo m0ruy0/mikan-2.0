@@ -123,9 +123,9 @@ func (b *Bot) adminReply(ctx context.Context, out *Outbox, chat int64, text stri
 
 func (b *Bot) adminHelp(ctx context.Context) string {
 	if b.Config(ctx).Lang == "en" {
-		return "<b>Mikan admin</b>\n/admin stats — overview\n/admin users — latest 10 clients\n/admin user ID — subscription details\n/admin devices ID — devices and recent IPs\n/admin nodes — panel nodes\n/admin help — this help\n\nWrite commands require a one-time confirmation token valid for five minutes."
+		return "<b>Mikan admin</b>\n/admin stats — overview\n/admin users — latest 10 clients\n/admin user ID — subscription details\n/admin devices ID — devices and recent IPs\n/admin nodes — panel nodes\n/admin disable ID — disable access\n/admin enable ID — enable access\n/admin extend ID DAYS — extend subscription\n/admin reset-traffic ID — reset traffic counter\n/admin confirm TOKEN — confirm a pending change\n/admin cancel TOKEN — cancel a pending change\n/admin help — this help\n\nWrite commands require a one-time confirmation token valid for five minutes."
 	}
-	return "<b>Администрирование Mikan</b>\n/admin stats — общая статистика\n/admin users — последние 10 клиентов\n/admin user ID — данные подписки\n/admin devices ID — устройства и последние IP\n/admin nodes — ноды панели\n/admin help — эта справка\n\nКоманды доступны только подтверждённому чату администратора. Изменения требуют одноразового токена подтверждения на 5 минут."
+	return "<b>Администрирование Mikan</b>\n/admin stats — общая статистика\n/admin users — последние 10 клиентов\n/admin user ID — данные подписки\n/admin devices ID — устройства и последние IP\n/admin nodes — ноды панели\n/admin disable ID — выключить доступ\n/admin enable ID — включить доступ\n/admin extend ID DAYS — продлить подписку\n/admin reset-traffic ID — сбросить трафик\n/admin confirm TOKEN — подтвердить действие\n/admin cancel TOKEN — отменить действие\n/admin help — эта справка\n\nКоманды доступны только подтверждённому чату администратора. Изменения требуют одноразового токена подтверждения на 5 минут."
 }
 
 func (b *Bot) adminUsage(ctx context.Context) string {

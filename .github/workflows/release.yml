@@ -108,6 +108,20 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y postgresql-client-18
           echo /usr/lib/postgresql/18/bin >> "$GITHUB_PATH"
+      - name: validate Pterodactyl Egg and startup script
+        run: |
+          python3 -m json.tool pterodactyl/egg-mikan-node.json >/dev/null
+          python3 - <<'PY'
+          import json, pathlib
+          egg = json.loads(pathlib.Path("pterodactyl/egg-mikan-node.json").read_text(encoding="utf-8"))
+          script = egg["scripts"]["installation"]["script"]
+          marker = "cat > /mnt/server/start.sh <<'MIKAN_START'\n"
+          end_marker = "\nMIKAN_START\n"
+          start = script.index(marker) + len(marker)
+          end = script.index(end_marker, start)
+          pathlib.Path("/tmp/mikan-pterodactyl-start.sh").write_text(script[start:end] + "\n", encoding="utf-8")
+          PY
+          bash -n /tmp/mikan-pterodactyl-start.sh
       - name: go
         run: go test ./...
 
@@ -197,8 +211,40 @@ jobs:
           name: mikan-${{ matrix.arch }}
           path: dist/mikan-${{ matrix.arch }}
 
+  node:
+    needs: test
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        include:
+          - goarch: amd64
+            arch: x86_64
+          - goarch: arm64
+            arch: aarch64
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: "1.27"
+      - name: build standalone node
+        env:
+          GOOS: linux
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          mkdir -p dist
+          CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X main.version=${version}" -o "dist/mikan-node-${{ matrix.arch }}" ./cmd/mikan-node
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: mikan-node-${{ matrix.arch }}
+          path: dist/mikan-node-${{ matrix.arch }}
+
   publish:
-    needs: [image, installer]
+    needs: [image, installer, node]
     runs-on: ubuntu-24.04
     # One release at a time writes the index: the second waits and carries the first on.
     concurrency:
@@ -226,6 +272,7 @@ jobs:
           go run ./cmd/mikan-release manifest -version "$version" \
             -image "${{ needs.image.outputs.image }}" -digest "${{ needs.image.outputs.digest }}" \
             -asset x86_64=dist/mikan-x86_64 -asset aarch64=dist/mikan-aarch64 \
+            -node-asset x86_64=dist/mikan-node-x86_64 -node-asset aarch64=dist/mikan-node-aarch64 \
             -min-installer-file .github/min-installer -out dist
           go run ./cmd/mikan-release verify dist/manifest.json
           # A stable release becomes "latest", which mikan 0.4.5 and 0.5.0.0 read for as
@@ -242,7 +289,7 @@ jobs:
           pre=""
           case "$GITHUB_REF_NAME" in *-*) pre="--prerelease" ;; esac
           gh release create "$GITHUB_REF_NAME" $pre --verify-tag --title "Mikan 2.0 ${GITHUB_REF_NAME#v}" --notes-file dist/notes.md \
-            dist/install.sh dist/mikan-x86_64 dist/mikan-aarch64 dist/manifest.json dist/manifest.json.sig
+            dist/install.sh dist/mikan-x86_64 dist/mikan-aarch64 dist/mikan-node-x86_64 dist/mikan-node-aarch64 dist/manifest.json dist/manifest.json.sig
       # The release index (internal/release/index.go) lives on the "updates" pre-release,
       # which never becomes "latest". The current index is carried on only with a valid
       # signature; when there is none yet, it starts a fresh Mikan 2.0 release chain
