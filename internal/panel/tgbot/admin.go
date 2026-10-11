@@ -2,16 +2,20 @@ package tgbot
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
+	"encoding/base64"
 	"fmt"
 	"html"
 	"strconv"
 	"strings"
 	"time"
 
+	"mikan/internal/panel/domain"
+	"mikan/internal/panel/store/db"
 )
 
-// adminCommand handles the read-only /admin surface of the subscriber bot. It is
+// adminCommand handles the restricted /admin surface of the subscriber bot. It is
 // deliberately tied to the separately verified infrastructure-admin private chat:
 // knowing the command name or a subscription link never grants administrative access.
 func (b *Bot) adminCommand(ctx context.Context, out *Outbox, m *Message, raw string) bool {
@@ -65,6 +69,41 @@ func (b *Bot) adminCommand(ctx context.Context, out *Outbox, m *Message, raw str
 		b.adminReply(ctx, out, chat, b.adminDevices(ctx, id))
 	case "nodes":
 		b.adminReply(ctx, out, chat, b.adminNodes(ctx))
+	case "disable", "enable", "reset-traffic":
+		if len(args) != 2 {
+			b.adminReply(ctx, out, chat, b.adminUsage(ctx))
+			return true
+		}
+		id, err := strconv.ParseInt(args[1], 10, 64)
+		if err != nil || id < 1 {
+			b.adminReply(ctx, out, chat, b.adminUsage(ctx))
+			return true
+		}
+		b.adminPrepareAction(ctx, out, chat, id, strings.ToLower(args[0]), 0)
+	case "extend":
+		if len(args) != 3 {
+			b.adminReply(ctx, out, chat, b.adminUsage(ctx))
+			return true
+		}
+		id, idErr := strconv.ParseInt(args[1], 10, 64)
+		days, daysErr := strconv.ParseInt(args[2], 10, 64)
+		if idErr != nil || id < 1 || daysErr != nil || days < 1 || days > 3650 {
+			b.adminReply(ctx, out, chat, b.adminUsage(ctx))
+			return true
+		}
+		b.adminPrepareAction(ctx, out, chat, id, "extend", days)
+	case "confirm":
+		if len(args) != 2 {
+			b.adminReply(ctx, out, chat, b.adminUsage(ctx))
+			return true
+		}
+		b.adminConfirmAction(ctx, out, chat, args[1])
+	case "cancel":
+		if len(args) != 2 {
+			b.adminReply(ctx, out, chat, b.adminUsage(ctx))
+			return true
+		}
+		b.adminCancelAction(ctx, out, chat, args[1])
 	default:
 		b.adminReply(ctx, out, chat, b.adminUsage(ctx))
 	}
@@ -80,16 +119,16 @@ func (b *Bot) adminReply(ctx context.Context, out *Outbox, chat int64, text stri
 
 func (b *Bot) adminHelp(ctx context.Context) string {
 	if b.Config(ctx).Lang == "en" {
-		return "<b>Mikan admin</b>\n/admin stats — overview\n/admin users — latest 10 clients\n/admin user ID — subscription details\n/admin devices ID — devices and recent IPs\n/admin nodes — panel nodes\n/admin help — this help\n\nRead-only commands for the verified admin chat."
+		return "<b>Mikan admin</b>\n/admin stats — overview\n/admin users — latest 10 clients\n/admin user ID — subscription details\n/admin devices ID — devices and recent IPs\n/admin nodes — panel nodes\n/admin help — this help\n\nWrite commands require a one-time confirmation token valid for five minutes."
 	}
-	return "<b>Администрирование Mikan</b>\n/admin stats — общая статистика\n/admin users — последние 10 клиентов\n/admin user ID — данные подписки\n/admin devices ID — устройства и последние IP\n/admin nodes — ноды панели\n/admin help — эта справка\n\nКоманды только для подтверждённого чата администратора. Пока доступны команды просмотра."
+	return "<b>Администрирование Mikan</b>\n/admin stats — общая статистика\n/admin users — последние 10 клиентов\n/admin user ID — данные подписки\n/admin devices ID — устройства и последние IP\n/admin nodes — ноды панели\n/admin help — эта справка\n\nКоманды доступны только подтверждённому чату администратора. Изменения требуют одноразового токена подтверждения на 5 минут."
 }
 
 func (b *Bot) adminUsage(ctx context.Context) string {
 	if b.Config(ctx).Lang == "en" {
-		return "Usage: /admin stats, /admin users, /admin user ID, /admin devices ID, /admin nodes."
+		return "Usage: /admin stats, /admin users, /admin user ID, /admin devices ID, /admin nodes, /admin disable ID, /admin enable ID, /admin extend ID DAYS, /admin reset-traffic ID, /admin confirm TOKEN, /admin cancel TOKEN."
 	}
-	return "Использование: /admin stats, /admin users, /admin user ID, /admin devices ID, /admin nodes."
+	return "Использование: /admin stats, /admin users, /admin user ID, /admin devices ID, /admin nodes, /admin disable ID, /admin enable ID, /admin extend ID DAYS, /admin reset-traffic ID, /admin confirm TOKEN, /admin cancel TOKEN."
 }
 
 func (b *Bot) adminStats(ctx context.Context) string {
@@ -331,4 +370,187 @@ func formatAdminBytes(n int64) string {
 		exp++
 	}
 	return fmt.Sprintf("%.1f %ciB", float64(n)/float64(div), "KMGTPE"[exp])
+}
+
+type pendingAdminAction struct {
+	ChatID int64
+	UserID int64
+	Action string
+	Days   int64
+	Until  time.Time
+}
+
+func (b *Bot) adminPrepareAction(ctx context.Context, out *Outbox, chat, userID int64, action string, days int64) {
+	if b.d.Users == nil {
+		b.adminReply(ctx, out, chat, b.adminMutationUnavailable(ctx))
+		return
+	}
+	u, err := b.d.Users.Get(ctx, userID)
+	if err != nil {
+		if err == domain.ErrNotFound || err == sql.ErrNoRows {
+			b.adminReply(ctx, out, chat, b.adminNotFound(ctx))
+			return
+		}
+		b.adminReply(ctx, out, chat, b.adminReadError(ctx))
+		return
+	}
+
+	raw := make([]byte, 18)
+	if _, err := rand.Read(raw); err != nil {
+		b.adminReply(ctx, out, chat, b.adminReadError(ctx))
+		return
+	}
+	token := base64.RawURLEncoding.EncodeToString(raw)
+	until := b.d.Now().Add(5 * time.Minute)
+	pending := pendingAdminAction{ChatID: chat, UserID: userID, Action: action, Days: days, Until: until}
+	b.adminActionMu.Lock()
+	if b.adminActions == nil {
+		b.adminActions = make(map[string]pendingAdminAction)
+	}
+	for key, item := range b.adminActions {
+		if !b.d.Now().Before(item.Until) {
+			delete(b.adminActions, key)
+		}
+	}
+	b.adminActions[token] = pending
+	b.adminActionMu.Unlock()
+
+	name := html.EscapeString(u.Name)
+	var prompt string
+	switch action {
+	case domain.BulkDisable:
+		prompt = fmt.Sprintf("⚠️ Выключить доступ клиента #%d (%s)?\nПодтвердите: <code>/admin confirm %s</code>", userID, name, token)
+		if b.Config(ctx).Lang == "en" {
+			prompt = fmt.Sprintf("⚠️ Disable access for client #%d (%s)?\nConfirm: <code>/admin confirm %s</code>", userID, name, token)
+		}
+	case domain.BulkEnable:
+		prompt = fmt.Sprintf("Включить доступ клиента #%d (%s)?\nПодтвердите: <code>/admin confirm %s</code>", userID, name, token)
+		if b.Config(ctx).Lang == "en" {
+			prompt = fmt.Sprintf("Enable access for client #%d (%s)?\nConfirm: <code>/admin confirm %s</code>", userID, name, token)
+		}
+	case domain.BulkExtend:
+		prompt = fmt.Sprintf("Продлить подписку клиента #%d (%s) на %d дн.?\nПодтвердите: <code>/admin confirm %s</code>", userID, name, days, token)
+		if b.Config(ctx).Lang == "en" {
+			prompt = fmt.Sprintf("Extend client #%d (%s) by %d days?\nConfirm: <code>/admin confirm %s</code>", userID, name, days, token)
+		}
+	case domain.BulkReset:
+		prompt = fmt.Sprintf("Сбросить счётчик трафика клиента #%d (%s)?\nПодтвердите: <code>/admin confirm %s</code>", userID, name, token)
+		if b.Config(ctx).Lang == "en" {
+			prompt = fmt.Sprintf("Reset traffic for client #%d (%s)?\nConfirm: <code>/admin confirm %s</code>", userID, name, token)
+		}
+	default:
+		b.adminReply(ctx, out, chat, b.adminUsage(ctx))
+		return
+	}
+	prompt += "\nТокен действует 5 минут. Отмена: <code>/admin cancel " + token + "</code>"
+	if b.Config(ctx).Lang == "en" {
+		prompt += "\nToken expires in 5 minutes. Cancel: <code>/admin cancel " + token + "</code>"
+	}
+	b.adminReply(ctx, out, chat, prompt)
+}
+
+func (b *Bot) adminConfirmAction(ctx context.Context, out *Outbox, chat int64, token string) {
+	b.adminActionMu.Lock()
+	pending, ok := b.adminActions[token]
+	if ok {
+		delete(b.adminActions, token)
+	}
+	b.adminActionMu.Unlock()
+	if !ok || pending.ChatID != chat || !b.d.Now().Before(pending.Until) {
+		b.adminReply(ctx, out, chat, b.adminTokenInvalid(ctx))
+		return
+	}
+	if b.d.Users == nil {
+		b.adminReply(ctx, out, chat, b.adminMutationUnavailable(ctx))
+		return
+	}
+
+	action := pending.Action
+	opt := domain.BulkOpt{Days: pending.Days}
+	changed, err := b.d.Users.Bulk(ctx, []int64{pending.UserID}, action, opt)
+	if err != nil {
+		b.adminReply(ctx, out, chat, b.adminReadError(ctx))
+		return
+	}
+	if changed == 0 {
+		b.adminReply(ctx, out, chat, b.adminNotFound(ctx))
+		return
+	}
+	details := fmt.Sprintf("{\"via\":\"telegram\",\"chat_id\":%d,\"user_id\":%d,\"days\":%d}", chat, pending.UserID, pending.Days)
+	auditErr := b.d.Store.Q.InsertAudit(ctx, db.InsertAuditParams{
+		Ts: b.d.Now().Unix(), AdminID: sql.NullInt64{},
+		Action: "telegram.admin." + action,
+		TargetType: sql.NullString{String: "user", Valid: true},
+		TargetID: sql.NullString{String: strconv.FormatInt(pending.UserID, 10), Valid: true},
+		Ip: sql.NullString{}, Details: sql.NullString{String: details, Valid: true},
+	})
+	if auditErr != nil && b.d.Log != nil {
+		b.d.Log.Warn("telegram admin action audit failed", "action", action, "user_id", pending.UserID, "err", auditErr)
+	}
+	b.adminReply(ctx, out, chat, b.adminActionDone(ctx, action, pending.UserID, pending.Days))
+}
+
+func (b *Bot) adminCancelAction(ctx context.Context, out *Outbox, chat int64, token string) {
+	b.adminActionMu.Lock()
+	pending, ok := b.adminActions[token]
+	if ok && pending.ChatID == chat {
+		delete(b.adminActions, token)
+	}
+	b.adminActionMu.Unlock()
+	if !ok || pending.ChatID != chat {
+		b.adminReply(ctx, out, chat, b.adminTokenInvalid(ctx))
+		return
+	}
+	if b.Config(ctx).Lang == "en" {
+		b.adminReply(ctx, out, chat, "✅ Pending action cancelled.")
+	} else {
+		b.adminReply(ctx, out, chat, "✅ Действие отменено.")
+	}
+}
+
+func (b *Bot) adminActionDone(ctx context.Context, action string, id, days int64) string {
+	if b.Config(ctx).Lang == "en" {
+		switch action {
+		case domain.BulkDisable:
+			return fmt.Sprintf("✅ Access disabled for client #%d.", id)
+		case domain.BulkEnable:
+			return fmt.Sprintf("✅ Access enabled for client #%d.", id)
+		case domain.BulkExtend:
+			return fmt.Sprintf("✅ Subscription #%d extended by %d days.", id, days)
+		case domain.BulkReset:
+			return fmt.Sprintf("✅ Traffic reset for client #%d.", id)
+		}
+	}
+	switch action {
+	case domain.BulkDisable:
+		return fmt.Sprintf("✅ Доступ клиента #%d выключен.", id)
+	case domain.BulkEnable:
+		return fmt.Sprintf("✅ Доступ клиента #%d включён.", id)
+	case domain.BulkExtend:
+		return fmt.Sprintf("✅ Подписка клиента #%d продлена на %d дн.", id, days)
+	case domain.BulkReset:
+		return fmt.Sprintf("✅ Счётчик трафика клиента #%d сброшен.", id)
+	}
+	return b.adminUsage(ctx)
+}
+
+func (b *Bot) adminMutationUnavailable(ctx context.Context) string {
+	if b.Config(ctx).Lang == "en" {
+		return "Admin actions are unavailable in this panel configuration."
+	}
+	return "Изменение подписок недоступно в этой конфигурации панели."
+}
+
+func (b *Bot) adminTokenInvalid(ctx context.Context) string {
+	if b.Config(ctx).Lang == "en" {
+		return "Confirmation token is invalid, expired or belongs to another chat. Request a new action."
+	}
+	return "Токен подтверждения неверен, истёк или выдан другому чату. Запросите действие заново."
+}
+
+func (b *Bot) adminNotFound(ctx context.Context) string {
+	if b.Config(ctx).Lang == "en" {
+		return "Client not found."
+	}
+	return "Клиент не найден."
 }
