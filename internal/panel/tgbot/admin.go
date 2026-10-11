@@ -406,7 +406,13 @@ func (b *Bot) adminPrepareAction(ctx context.Context, out *Outbox, chat, userID 
 	}
 	token := base64.RawURLEncoding.EncodeToString(raw)
 	until := b.d.Now().Add(5 * time.Minute)
-	pending := pendingAdminAction{ChatID: chat, UserID: userID, Action: action, Days: days, Until: until}
+	pending := pendingAdminAction{
+		ChatID: chat,
+		UserID: userID,
+		Action: action,
+		Days:   days,
+		Until:  until,
+	}
 	b.adminActionMu.Lock()
 	if b.adminActions == nil {
 		b.adminActions = make(map[string]pendingAdminAction)
