@@ -25,6 +25,9 @@ name: release
 on:
   push:
     tags: ["v*"]
+    # Temporary first-release bootstrap: this exact branch is created from main once,
+    # then the bootstrap branch trigger is removed after v0.5.0.4 is published.
+    branches: ["v0.5.0.4"]
 
 permissions: {}
 
@@ -288,8 +291,15 @@ jobs:
         run: |
           pre=""
           case "$GITHUB_REF_NAME" in *-*) pre="--prerelease" ;; esac
-          gh release create "$GITHUB_REF_NAME" $pre --verify-tag --title "Mikan 2.0 ${GITHUB_REF_NAME#v}" --notes-file dist/notes.md \
-            dist/install.sh dist/mikan-x86_64 dist/mikan-aarch64 dist/mikan-node-x86_64 dist/mikan-node-aarch64 dist/manifest.json dist/manifest.json.sig
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            gh release create "$GITHUB_REF_NAME" $pre --verify-tag --title "Mikan 2.0 ${GITHUB_REF_NAME#v}" --notes-file dist/notes.md \
+              dist/install.sh dist/mikan-x86_64 dist/mikan-aarch64 dist/mikan-node-x86_64 dist/mikan-node-aarch64 dist/manifest.json dist/manifest.json.sig
+          else
+            # One-time bootstrap branch for the first fork release; create the tag at the
+            # exact tested commit, then normal releases go back to tag-only publishing.
+            gh release create "$GITHUB_REF_NAME" $pre --target "$GITHUB_SHA" --title "Mikan 2.0 ${GITHUB_REF_NAME#v}" --notes-file dist/notes.md \
+              dist/install.sh dist/mikan-x86_64 dist/mikan-aarch64 dist/mikan-node-x86_64 dist/mikan-node-aarch64 dist/manifest.json dist/manifest.json.sig
+          fi
       # The release index (internal/release/index.go) lives on the "updates" pre-release,
       # which never becomes "latest". The current index is carried on only with a valid
       # signature; when there is none yet, it starts a fresh Mikan 2.0 release chain
