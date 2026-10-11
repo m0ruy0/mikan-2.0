@@ -241,7 +241,7 @@ jobs:
         run: |
           pre=""
           case "$GITHUB_REF_NAME" in *-*) pre="--prerelease" ;; esac
-          gh release create "$GITHUB_REF_NAME" $pre --verify-tag --title "mikan ${GITHUB_REF_NAME#v}" --notes-file dist/notes.md \
+          gh release create "$GITHUB_REF_NAME" $pre --verify-tag --title "Mikan 2.0 ${GITHUB_REF_NAME#v}" --notes-file dist/notes.md \
             dist/install.sh dist/mikan-x86_64 dist/mikan-aarch64 dist/manifest.json dist/manifest.json.sig
       # The release index (internal/release/index.go) lives on the "updates" pre-release,
       # which never becomes "latest". The current index is carried on only with a valid
@@ -259,7 +259,7 @@ jobs:
             # Never made yet; a creation that fails (it exists after all) stops the job
             # before anything is overwritten.
             gh release create updates --prerelease --latest=false --target main --title "Release index" \
-              --notes "The signed list of releases the mikan updaters read. Not a release: nothing to install here."
+              --notes "The signed list of releases Mikan 2.0 updaters read. Not a release: nothing to install here."
             assets=""
           else
             cat "$RUNNER_TEMP/err" >&2
