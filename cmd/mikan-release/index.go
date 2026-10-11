@@ -15,13 +15,9 @@ import (
 	"mikan/internal/release"
 )
 
-// seed is the index the first release that keeps one starts from, when the "updates"
-// release has none yet: the releases before it, each with the lowest version it updates
-// from directly.
-var seed = []release.Entry{
-	{Version: "0.4.5", Channel: release.Stable, Manifest: manifestURL("v0.4.5"), From: "0.4.0"},
-	{Version: "0.5.0.0", Channel: release.Stable, Manifest: manifestURL("v0.5.0.0"), From: "0.4.5"},
-}
+// Mikan 2.0 starts a new release chain. The first signed index must not include
+// upstream releases: they use a different repository and signing key.
+var seed = []release.Entry{}
 
 func manifestURL(tag string) string {
 	return fmt.Sprintf("https://github.com/%s/releases/download/%s/manifest.json", release.Repo, tag)
