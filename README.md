@@ -1,53 +1,71 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/banner-en-dark.svg">
-  <img alt="Mikan 2.0 — open fork of a mihomo VPN panel" src=".github/assets/banner-en-light.svg" width="100%">
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/banner-ru-dark.svg">
+  <img alt="Mikan 2.0 — открытый форк VPN-панели на mihomo" src=".github/assets/banner-ru-light.svg" width="100%">
 </picture>
 
 <br>
 
-**Mikan 2.0 is an open Mikan fork with a free roadmap and its own release process.**
+**Mikan 2.0 — открытый форк Mikan с бесплатной дорожной картой и собственным релизным процессом.**
 
-[![Repository](https://img.shields.io/badge/GitHub-Mikan%202.0-ff853d?style=flat-square&logo=github)](https://github.com/m0ruy0/mikan-2.0)
-[![License](https://img.shields.io/badge/license-GPL--3.0-2f9e6b?style=flat-square)](LICENSE)
-[![Core](https://img.shields.io/badge/core-mihomo-9e8eff?style=flat-square)](https://github.com/MetaCubeX/mihomo)
+[![Репозиторий](https://img.shields.io/badge/GitHub-Mikan%202.0-ff853d?style=flat-square&logo=github)](https://github.com/m0ruy0/mikan-2.0)
+[![Лицензия](https://img.shields.io/badge/license-GPL--3.0-2f9e6b?style=flat-square)](LICENSE)
+[![Ядро](https://img.shields.io/badge/core-mihomo-9e8eff?style=flat-square)](https://github.com/MetaCubeX/mihomo)
 
-[Русский](README.ru.md) · **English**
+**Русский** · [English](README_EN.md)
 
 </div>
 
 ---
 
-## One-command installer
+## Быстрый старт
 
-> **The first Mikan 2.0 release has not been published yet.** The command below is for the upcoming stable release; do not run it on a production server yet.
+> **Важно:** первый подписанный релиз Mikan 2.0 ещё не опубликован. Команда установки ниже станет рабочей после подготовки release secret и успешного выпуска. Пока не запускай её на production-сервере.
 
-On a clean Ubuntu 22.04+ or Debian 12+ VPS (amd64/arm64), after the first signed release is published:
+На чистом VPS с Ubuntu 22.04+ или Debian 12+ (amd64/arm64) после публикации релиза установка будет выполняться одной командой:
 
-```bash
+~~~bash
 curl -fsSL https://github.com/m0ruy0/mikan-2.0/releases/latest/download/install.sh | sudo bash
-```
+~~~
 
-The installer will verify the signed release manifest and the downloaded binary's SHA-256 checksum before starting the setup wizard. Do not use the original Mikan installer or image for Mikan 2.0.
+Установщик проверяет подпись манифеста релиза и SHA-256 скачанного бинарника, прежде чем запустить мастер настройки. Не используй установщик или Docker-образ оригинального Mikan для Mikan 2.0.
 
-Read the [installation guide](https://m0ruy0.github.io/mikan-2.0/en/start/install/).
+**Документация:** [установка](https://m0ruy0.github.io/mikan-2.0/start/install/) · [возможности исходной панели](https://m0ruy0.github.io/mikan-2.0/start/overview/) · [все протоколы](https://m0ruy0.github.io/mikan-2.0/protocols/presets/)
 
-## What we are building
+## Что уже есть в основе
 
-- **Pterodactyl nodes** — an Egg for regular game hosting without root or a Docker socket inside the container. Compatibility will depend on the provider's TCP/UDP allocations.
-- **Addon marketplace** — multiple ready-made Telegram bots, payment adapters and integrations with scoped permissions and verifiable updates.
-- **API for custom bots** — documented endpoints, scoped keys and signed webhooks.
-- **Free core features** — panel migration, safely importing external subscriptions as nodes, and a separate Telegram admin bot.
+- **Ноды на VPS/VDS** — отдельные узлы панели, статистика и управление подключениями.
+- **mihomo и множество протоколов** — пресеты конфигурации и учёт трафика в поддерживаемых протоколах.
+- **Подписки для разных приложений** — отдельные форматы для совместимых VPN-клиентов.
+- **Telegram-бот и Mini App** — управление подписками и поддерживаемые платежные адаптеры.
+- **Тарифы, устройства и промокоды** — базовые функции управления клиентами.
+- **Обновления и резервные копии** — существующая инфраструктура исходного проекта, адаптируемая для форка.
 
-These capabilities are still roadmap items, not a finished release. See the full [Mikan 2.0 roadmap](docs/mikan20-roadmap.md). Release setup: [docs/releasing.md](docs/releasing.md).
+## Что добавим бесплатно в Mikan 2.0
 
-## Development
+| Возможность | План |
+|---|---|
+| Ноды на Pterodactyl | Egg для игрового хостинга без root и Docker socket внутри контейнера; поддержка зависит от TCP/UDP-портов провайдера. |
+| Магазин аддонов | Несколько готовых Telegram-ботов, платёжные адаптеры и сторонние интеграции. |
+| API для своих ботов | Документированный API, ключи с ограниченными правами и webhooks. |
+| Внешние подписки как ноды | Безопасная загрузка и обновление источников с сохранением последней рабочей конфигурации. |
+| Перенос панели | Резервная копия, проверка восстановления и возможность отката. |
+| Админ-бот Telegram | Роли, список разрешённых администраторов и аудит действий. |
 
-The base is derived from [Mikan](https://github.com/Miroshka000/mikan), and the original attribution notices are retained. Mikan 2.0 is a modified fork under GNU GPL v3, not an official upstream release.
+Это **дорожная карта**, а не утверждение, что перечисленные функции уже реализованы. Полный план находится в [docs/mikan20-roadmap.md](docs/mikan20-roadmap.md).
 
-Development currently happens on `main`. Installer changes must be checked with Go tests, web/site builds and Rust tests; no release is considered ready until validation passes.
+## Разработка и релизы
 
-## License
+Основа проекта унаследована от [Mikan](https://github.com/Miroshka000/mikan). Mikan 2.0 — модифицированный форк под GNU GPL v3, не официальный релиз авторов оригинального проекта. Уведомления об авторстве и лицензии сохраняются.
 
-[GNU GPL v3](LICENSE). Commercial use and redistribution are permitted under the license terms.
+- [Код Mikan 2.0](https://github.com/m0ruy0/mikan-2.0)
+- [Релизы](https://github.com/m0ruy0/mikan-2.0/releases)
+- [Дорожная карта](docs/mikan20-roadmap.md)
+- [Настройка подписанных релизов](docs/releasing.md)
+
+Перед релизом должны проходить Go-тесты, проверки web/site и Rust-тесты. Подписанные релизы нельзя публиковать, пока не настроен секрет RELEASE_SIGNING_KEY и все CI-проверки не завершены успешно.
+
+## Лицензия
+
+[GNU GPL v3](LICENSE). Коммерческое использование и распространение допускаются на условиях лицензии.
