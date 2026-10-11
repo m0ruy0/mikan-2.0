@@ -234,7 +234,7 @@ const screens = Object.keys(t.screens.items) as Screen[];
 			<h3 id="sponsor-title">{t.cta.sponsorTitle}</h3>
 			<p>{t.cta.sponsorText}</p>
 			<div class="actions">
-				<a class="btn btn-accent" href={docs('support/')}>{t.cta.sponsor}</a>
+				<a class="btn btn-accent" href={links.sponsor}>{t.cta.sponsor}</a>
 				<a class="btn btn-ghost" href={links.github}>{t.cta.github}</a>
 			</div>
 		</aside>
@@ -1008,7 +1008,6 @@ const screens = Object.keys(t.screens.items) as Screen[];
 		mask-image: linear-gradient(to bottom, black, transparent 92%);
 	}
 
-	.roadmap-badge { box-shadow: 0 0 30px color-mix(in srgb, var(--mk-accent) 9%, transparent); }
 
 	.features {
 		gap: 0.9rem;
