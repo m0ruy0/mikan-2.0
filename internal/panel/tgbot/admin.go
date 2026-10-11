@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
 	"mikan/internal/panel/domain"
 	"mikan/internal/panel/store/db"
 )
@@ -79,7 +78,11 @@ func (b *Bot) adminCommand(ctx context.Context, out *Outbox, m *Message, raw str
 			b.adminReply(ctx, out, chat, b.adminUsage(ctx))
 			return true
 		}
-		b.adminPrepareAction(ctx, out, chat, id, strings.ToLower(args[0]), 0)
+		action := strings.ToLower(args[0])
+		if action == "reset-traffic" {
+			action = domain.BulkReset
+		}
+		b.adminPrepareAction(ctx, out, chat, id, action, 0)
 	case "extend":
 		if len(args) != 3 {
 			b.adminReply(ctx, out, chat, b.adminUsage(ctx))
@@ -442,9 +445,10 @@ func (b *Bot) adminPrepareAction(ctx context.Context, out *Outbox, chat, userID 
 		b.adminReply(ctx, out, chat, b.adminUsage(ctx))
 		return
 	}
-	prompt += "\nТокен действует 5 минут. Отмена: <code>/admin cancel " + token + "</code>"
 	if b.Config(ctx).Lang == "en" {
 		prompt += "\nToken expires in 5 minutes. Cancel: <code>/admin cancel " + token + "</code>"
+	} else {
+		prompt += "\nТокен действует 5 минут. Отмена: <code>/admin cancel " + token + "</code>"
 	}
 	b.adminReply(ctx, out, chat, prompt)
 }
