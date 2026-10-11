@@ -1715,15 +1715,36 @@
     }
   },
   "goals": {
-    "title": "What we are working on",
-    "sub": "Features the community collects money for. Once a sum is collected, the work starts.",
-    "raised": "{raised} of {target}",
-    "open": "Collecting",
-    "working": "Collected, in work",
-    "give": "Support",
-    "any": "Support without a goal",
-    "all": "All goals",
-    "progress": "{title}: {raised} of {target} raised"
+    "title": "Mikan 2.0 roadmap",
+    "sub": "These features belong to the free core. Fundraising is not a prerequisite for starting development.",
+    "planned": "Planned",
+    "freeCore": "Included in the free core",
+    "features": {
+      "pterodactyl": {
+        "title": "Pterodactyl nodes",
+        "description": "Run a node on regular game hosting without root or Docker inside the container. Compatibility depends on the provider's TCP/UDP port allocations."
+      },
+      "migration": {
+        "title": "Move the panel to another server",
+        "description": "Move users, plans, settings and nodes with a backup, restore validation and a rollback path."
+      },
+      "external": {
+        "title": "External subscriptions as nodes",
+        "description": "Import and refresh third-party subscriptions with URL safety checks and last-known-good configuration."
+      },
+      "adminBot": {
+        "title": "Telegram admin bot",
+        "description": "A separate bot with admin allowlisting, roles, confirmation for dangerous actions and an audit trail."
+      },
+      "addons": {
+        "title": "Addon store and multiple ready-made bots",
+        "description": "A catalog of bots and integrations configurable and updatable from the panel; payment adapters remain a separate category."
+      },
+      "api": {
+        "title": "API for custom bots",
+        "description": "A documented API, scoped keys and webhooks for third-party developers."
+      }
+    }
   },
   "sub": {
     "loadFailed": "Could not load the subscription",
