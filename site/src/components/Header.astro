@@ -15,12 +15,24 @@ const { lang: routeLang, hasSidebar } = Astro.locals.starlightRoute;
 const lang = routeLang === 'en' ? 'en' : 'ru';
 const t = strings[lang].header;
 const other = lang === 'en' ? 'ru' : 'en';
+const homeHref = lang === 'en' ? `${import.meta.env.BASE_URL}en/` : import.meta.env.BASE_URL;
+const installHref = `${import.meta.env.BASE_URL}${lang === 'en' ? 'en/' : ''}start/install/`;
 ---
 
-<div class="header">
+<div class:list={['header', { 'landing-header': !hasSidebar }]}>
 	<div class="title-wrapper sl-flex">
 		<SiteTitle />
 	</div>
+	{
+		!hasSidebar && (
+			<nav class="landing-nav print:hidden" aria-label={t.navLabel}>
+				<a href={homeHref}>{t.navHome}</a>
+				<a href="#features-title">{t.navFeatures}</a>
+				<a href={installHref}>{t.navDocs}</a>
+				<a href="#screens-title">{t.navDemo}</a>
+			</nav>
+		)
+	}
 	<div class="search sl-flex print:hidden">
 		<Search />
 	</div>
@@ -40,9 +52,9 @@ const other = lang === 'en' ? 'ru' : 'en';
 			<Icon name="github" size="1rem" />
 			<span class="hbtn-text">GitHub</span>
 		</a>
-		<a class="hbtn hbtn-accent hbtn-support" href={links.sponsor} aria-label={t.supportLabel}>
-			<Icon name="book-open" size="1rem" />
-			<span class="hbtn-text">{t.support}</span>
+		<a class="hbtn hbtn-accent hbtn-support" href={!hasSidebar ? installHref : links.sponsor} aria-label={!hasSidebar ? t.startLabel : t.supportLabel}>
+			<Icon name={!hasSidebar ? "arrow-up-right" : "book-open"} size="1rem" />
+			<span class="hbtn-text">{!hasSidebar ? t.start : t.support}</span>
 		</a>
 	</div>
 </div>
@@ -222,4 +234,15 @@ const other = lang === 'en' ? 'ru' : 'en';
 			display: inline;
 		}
 	}
+/* Homepage header: compact product navigation instead of an empty search bar. */
+.header.landing-header { display: flex; gap: 1rem; }
+.landing-header .search { display: none; }
+.landing-header .landing-nav { display: flex; align-items: center; justify-content: center; gap: clamp(.75rem, 1.4vw, 1.5rem); margin-inline: auto; white-space: nowrap; }
+.landing-nav a { position: relative; padding-block: .55rem; color: var(--mk-muted); font-size: .875rem; font-weight: 550; text-decoration: none; transition: color .2s var(--mk-ease); }
+.landing-nav a:hover { color: var(--mk-ink); }
+.landing-nav a::after { content: ''; position: absolute; left: 0; right: 100%; bottom: .15rem; height: 2px; border-radius: 999px; background: var(--mk-accent); transition: right .22s var(--mk-ease); }
+.landing-nav a:hover::after { right: 0; }
+.landing-header .controls { margin-inline-start: 0; flex: none; }
+@media (max-width: 75rem) { .landing-header .landing-nav { gap: .75rem; } .landing-nav a { font-size: .8125rem; } }
+@media (max-width: 63.99rem) { .header.landing-header { display: flex; } .landing-header .landing-nav { display: none; } .landing-header .controls { margin-inline-start: auto; } }
 </style>
