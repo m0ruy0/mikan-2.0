@@ -5,16 +5,40 @@ import { t } from "../../../i18n";
  * not crowdfunding goals; this card intentionally does not read release goals
  * or expose donation links.
  */
-const FEATURES = [
-  ["pterodactyl", "goals.features.pterodactyl"],
-  ["migration", "goals.features.migration"],
-  ["external", "goals.features.external"],
-  ["adminBot", "goals.features.adminBot"],
-  ["addons", "goals.features.addons"],
-  ["api", "goals.features.api"],
-] as const;
-
 export function GoalsCard() {
+  const features = [
+    {
+      id: "pterodactyl",
+      title: t("goals.features.pterodactyl.title"),
+      description: t("goals.features.pterodactyl.description"),
+    },
+    {
+      id: "migration",
+      title: t("goals.features.migration.title"),
+      description: t("goals.features.migration.description"),
+    },
+    {
+      id: "external",
+      title: t("goals.features.external.title"),
+      description: t("goals.features.external.description"),
+    },
+    {
+      id: "adminBot",
+      title: t("goals.features.adminBot.title"),
+      description: t("goals.features.adminBot.description"),
+    },
+    {
+      id: "addons",
+      title: t("goals.features.addons.title"),
+      description: t("goals.features.addons.description"),
+    },
+    {
+      id: "api",
+      title: t("goals.features.api.title"),
+      description: t("goals.features.api.description"),
+    },
+  ];
+
   return (
     <section className="card glass reveal" aria-labelledby="goals-title">
       <div className="card-head">
@@ -26,15 +50,15 @@ export function GoalsCard() {
         </div>
       </div>
       <ul className="row-list">
-        {FEATURES.map(([id, key]) => (
-          <li key={id} className="py-3">
+        {features.map((feature) => (
+          <li key={feature.id} className="py-3">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-[13px] font-semibold text-[var(--ink-900)]">
-                  {t(`${key}.title`)}
+                  {feature.title}
                 </div>
                 <p className="mt-1 text-xs text-[var(--ink-500)]">
-                  {t(`${key}.description`)}
+                  {feature.description}
                 </p>
               </div>
               <span className="shrink-0 rounded-full border border-[var(--line)] px-2 py-1 text-[11px] text-[var(--ink-500)]">
