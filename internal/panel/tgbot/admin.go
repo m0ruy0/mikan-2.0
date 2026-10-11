@@ -489,11 +489,13 @@ func (b *Bot) adminConfirmAction(ctx context.Context, out *Outbox, chat int64, t
 	}
 	details := fmt.Sprintf("{\"via\":\"telegram\",\"chat_id\":%d,\"user_id\":%d,\"days\":%d}", chat, pending.UserID, pending.Days)
 	auditErr := b.d.Store.Q.InsertAudit(ctx, db.InsertAuditParams{
-		Ts: b.d.Now().Unix(), AdminID: sql.NullInt64{},
-		Action: "telegram.admin." + action,
+		Ts:         b.d.Now().Unix(),
+		AdminID:    sql.NullInt64{},
+		Action:     "telegram.admin." + action,
 		TargetType: sql.NullString{String: "user", Valid: true},
-		TargetID: sql.NullString{String: strconv.FormatInt(pending.UserID, 10), Valid: true},
-		Ip: sql.NullString{}, Details: sql.NullString{String: details, Valid: true},
+		TargetID:   sql.NullString{String: strconv.FormatInt(pending.UserID, 10), Valid: true},
+		Ip:         sql.NullString{},
+		Details:    sql.NullString{String: details, Valid: true},
 	})
 	if auditErr != nil && b.d.Log != nil {
 		b.d.Log.Warn("telegram admin action audit failed", "action", action, "user_id", pending.UserID, "err", auditErr)
