@@ -19,10 +19,10 @@ on:
 permissions:
   contents: read
 
-# One deployment at a time; a newer push waits instead of cancelling one in progress.
+# Only the newest main build should deploy; a newer push cancels an older in-progress run.
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
