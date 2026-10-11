@@ -40,7 +40,7 @@ Read the [installation guide](https://m0ruy0.github.io/mikan-2.0/en/start/instal
 - **API for custom bots** — documented endpoints, scoped keys and signed webhooks.
 - **Free core features** — panel migration, safely importing external subscriptions as nodes, and a separate Telegram admin bot.
 
-These capabilities are still roadmap items, not a finished release. See the full [Mikan 2.0 roadmap](docs/mikan20-roadmap.md).
+These capabilities are still roadmap items, not a finished release. See the full [Mikan 2.0 roadmap](docs/mikan20-roadmap.md). Release setup: [docs/releasing.md](docs/releasing.md).
 
 ## Development
 
