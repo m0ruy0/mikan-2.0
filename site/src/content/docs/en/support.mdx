@@ -1,14 +1,23 @@
 ---
-title: Mikan 2.0 roadmap
-description: Features planned for the free core of Mikan 2.0.
+title: Mikan 2.0 support
+description: Troubleshooting, logs, and reporting an issue with Mikan 2.0.
 ---
 
-import Goals from '../../../components/Goals.astro';
+Mikan 2.0 is an open-source Mikan fork. This page collects the basic steps for preparing a useful support report.
 
-Mikan 2.0 is an open-source fork of Mikan. The core features in this roadmap are planned for the free release; donations are not a prerequisite for starting development.
+## Before reporting
 
-Our first priorities are Pterodactyl nodes, moving the panel between servers, safely importing external subscriptions, a separate Telegram admin bot, an addon marketplace and an API for custom bots.
+1. Check the installation with `mikan status`.
+2. Read panel logs with `mikan logs panel`.
+3. For node issues, check `mikan logs node` and the node status in the panel's **Nodes** section.
+4. Never post passwords, node join keys, Telegram tokens, subscription links, or the contents of `.env`.
 
-Everything below is a **development plan, not a claim that these features are already implemented**. Support for a particular game host depends on its port allocations and network restrictions.
+## Report an issue
 
-<Goals lang="en" />
+Open [GitHub Issues](https://github.com/m0ruy0/mikan-2.0/issues/new/choose). Include the version, server architecture, installation method, reproduction steps, and a sanitized log excerpt. For networking issues, include the port and protocol you tested.
+
+## Moving an installation
+
+The installer supports backup and restore with `mikan backup` and `mikan restore`. Create an archive before moving, copy it to the target server, and check that the target has a compatible Docker installation and enough disk space. Do not remove the source installation until you have checked the panel, users, subscriptions, and nodes on the new server.
+
+Command details are available from `mikan --help`, `mikan backup --help`, and `mikan restore --help`.
