@@ -6,13 +6,15 @@ name: ci
 # Every action is pinned to a commit (the comment is the version it was), so that a moved
 # tag cannot change what runs; dependabot (.github/dependabot.yml) proposes the updates.
 on:
+  push:
+    branches: [main]
   pull_request:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.event.pull_request.number }}
+  group: ci-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 
 jobs:
