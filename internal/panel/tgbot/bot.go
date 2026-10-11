@@ -51,6 +51,7 @@ type Deps struct {
 	Store    *store.Store
 	Settings *settings.Settings
 	Devices  *domain.Devices
+	Users    *domain.Users // business-safe subscriber mutations for verified Telegram admins
 	// SubBase is https://host:port/<sub path>, "" while the panel has no public address.
 	SubBase func(ctx context.Context) string
 	// MiniApp: the panel's certificate is one Telegram apps accept (not self-signed).
@@ -89,6 +90,8 @@ type Bot struct {
 	// Subscriptions somebody asked to take over: by subscription, and who was refused.
 	transfers map[int64]transfer
 	refused   map[string]time.Time
+	adminActionMu sync.Mutex
+	adminActions map[string]pendingAdminAction
 
 	noticeMu sync.Mutex
 	notices  map[string]*noticeState
@@ -120,7 +123,7 @@ func New(d Deps) *Bot {
 		polled = settings.Cached(d.Store.Q, 15*time.Second)
 	}
 	return &Bot{d: d, polled: polled, reload: make(chan struct{}, 1), input: map[int64][]time.Time{},
-		transfers: map[int64]transfer{}, refused: map[string]time.Time{}, notices: map[string]*noticeState{}}
+		transfers: map[int64]transfer{}, refused: map[string]time.Time{}, adminActions: map[string]pendingAdminAction{}, notices: map[string]*noticeState{}}
 }
 
 // Status of the running bot.
