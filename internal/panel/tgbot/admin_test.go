@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	"mikan/internal/panel/domain"
 	"mikan/internal/panel/settings"
 )
 
