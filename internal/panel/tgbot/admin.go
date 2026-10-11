@@ -292,7 +292,7 @@ func (b *Bot) adminDevices(ctx context.Context, id int64) string {
 		if i >= limit {
 			break
 		}
-		label := strings.TrimSpace(strings.Join([]string{d.Model, d.OS, d.App}, " · "))
+		label := strings.TrimSpace(strings.Join([]string{d.Model, d.Os, d.App}, " · "))
 		if label == "" {
 			label = "device"
 		}
