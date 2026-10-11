@@ -29,6 +29,11 @@ export const strings = {
 			primary: 'Установка',
 			secondary: 'Дорожная карта',
 			art: 'Новый символ Mikan 2.0 — мандарин с сетевыми орбитами',
+			previewLabel: 'Mikan 2.0 · Обзор панели',
+			previewStatus: 'ПРЕВЬЮ',
+			dashboardAlt: 'Скриншот главной панели управления из исходного проекта Mikan',
+			healthTitle: 'Состояние панели',
+			healthSubtitle: 'Макет интерфейса из исходного проекта',
 		},
 		screens: {
 			title: 'Одна панель на всё',
@@ -148,6 +153,11 @@ export const strings = {
 			primary: 'Installation',
 			secondary: 'Roadmap',
 			art: 'Mikan 2.0 mandarin mascot with network orbits',
+			previewLabel: 'Mikan 2.0 · Panel overview',
+			previewStatus: 'PREVIEW',
+			dashboardAlt: 'Screenshot of the inherited Mikan dashboard interface',
+			healthTitle: 'Panel status',
+			healthSubtitle: 'Inherited interface preview',
 		},
 		screens: {
 			title: 'One panel for all of it',
