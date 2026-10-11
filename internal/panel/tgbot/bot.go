@@ -559,6 +559,9 @@ func (b *Bot) onMessage(ctx context.Context, out *Outbox, m *Message) {
 		out.Reply(chat, "infrastructure-admin", 1, func(ctx context.Context, c *Client) error { _, err := c.Send(ctx, chat, text, nil, false); return err })
 		return
 	}
+	if b.adminCommand(ctx, out, m, messageText) {
+		return
+	}
 	_ = b.d.Store.Q.UpsertTgChat(ctx, db.UpsertTgChatParams{TgID: chat, Username: m.From.Username, FirstName: m.From.FirstName, CreatedAt: now, UpdatedAt: now})
 	cfg := b.Config(ctx)
 	w := wordsFor(cfg.Lang)
