@@ -1,0 +1,27 @@
+---
+title: Pterodactyl node
+description: Run Mikan node in a regular game-server container without root or a Docker socket.
+---
+
+The Egg lives in the repository: [`pterodactyl/egg-mikan-node.json`](https://github.com/m0ruy0/mikan-2.0/blob/main/pterodactyl/egg-mikan-node.json). It runs the standalone `mikan-node` binary as the normal container user. It does not require the Docker socket, root privileges or Docker inside the game-server container.
+
+## Release prerequisite
+
+The Egg downloads only a node binary from a signed release: it verifies the Ed25519 manifest signature and the binary's SHA-256 checksum. It deliberately refuses to start unless the signed manifest contains a `node` section for `x86_64` or `aarch64`. The release workflow adds those files to future releases; already published releases are not modified. Wait for a release containing node assets before deploying the Egg on a live host.
+
+## Setup
+
+1. In Pterodactyl, open **Nests → Import Egg** and import the JSON from the repository.
+2. Create the server using the **Python 3.12** image. The container must provide `curl`, `openssl`, `python3`, `base64` and `sha256sum`.
+3. Allocate a **primary allocation** for the node API and additional TCP/UDP allocations for client inbounds. The provider must permit the protocols and ports you intend to use.
+4. In the Mikan panel, open **Nodes → Add node**. Enter the public game-hosting address and an API port matching the primary allocation.
+5. Copy the one-time node key. Paste only the key into `MIKAN_NODE_JOIN`, not the full install command. Keep this key secret.
+6. Start the server. The bootstrap verifies the release signature and checksum, downloads the binary for the current architecture, checks the API port and starts the node.
+7. Verify the node's status in Mikan. Assign each client inbound only to ports allocated to this Pterodactyl server.
+
+## Limitations
+
+- Some game hosts allocate only one port, restrict UDP or filter inbound traffic. That is a provider limitation, not an Egg issue.
+- The panel must be able to connect over TCP to the node API allocation; client TCP/UDP ports are allocated separately.
+- Features that need host-kernel control, such as TUN or system routing changes, are not available in a regular game-server container.
+- CI verifies the build and startup-script syntax. Test the Egg on a real Wings host at your provider before production use.
